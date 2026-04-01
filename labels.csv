@@ -1,0 +1,91 @@
+bank,addr,name,comment
+7,E19B,Reset,RESET vector entry point
+7,E3C9,NMI,NMI vector entry point
+*,FFFA,vec_NMI,NMI vector address
+*,FFFC,vec_RESET,RESET vector address
+*,FFFE,vec_IRQ,IRQ vector address
+7,E871,init_mmc1,MMC1 mapper init + bank setup
+7,EA7E,init_sprites,Clear OAM buffer and set initial sprite
+7,EB93,mmc1_write_ctrl,Write 5-bit value to MMC1 control ($8000-$9FFF)
+7,E56E,mmc1_write_chr0,Write 5-bit value to MMC1 CHR bank 0 ($A000-$BFFF)
+7,E582,mmc1_write_chr1,Write 5-bit value to MMC1 CHR bank 1 ($C000-$DFFF)
+7,E596,mmc1_write_prg,Write 5-bit value to MMC1 PRG bank ($E000-$FFFF)
+7,E5AA,sub_E5AA,PRG bank + mode setup
+7,E9EB,sub_E9EB,Called during init with A=$85
+7,E95B,wait_nmi,Wait for NMI - JSR $F24A then set $1C flags
+7,E3B9,sub_E3B9,Called during level init
+7,E3A7,sub_E3A7,Called during level init
+7,E0EE,sub_E0EE,Called during level init
+7,E06B,wait_frame,Wait for NMI / frame sync
+7,E3B6,sub_E3B6,Called during game setup
+7,F2BC,sub_F2BC,Called during game setup
+7,E08E,sub_E08E,Called during game loop setup
+7,E2C6,clear_game_state,Clear zero page $20-$35 and RAM areas $0600-$07FF
+7,E8A8,sub_E8A8,Called during game loop
+7,E898,sub_E898,Called with A=0 during game loop
+7,F73D,game_frame_proc,Frame sync check - JSR $F743 then JMP wait_nmi
+7,F743,frame_check,Check NMI flag and rendering state
+7,E110,dispatch_offset5,Add 5 to dispatch index $3A then fall into dispatch
+7,E11A,bank6_dispatch,Bank-switch to bank 6 and call via jump table at $8000+$3A*2
+7,E16A,dispatch_read_jmp,Read ptr from $8000+Y and JMP through ($3E)
+7,E17B,inline_dispatch,Read dispatch params from inline data after JSR
+7,E290,game_loop,Main game processing loop (while $80 != 0)
+7,E97D,indexed_jmp,A=index into inline addr table following JSR then JMP
+7,E992,sub_E992,Mode transition handler - dispatches on A value
+7,E0EC,sub_E0EC,Called when game state $80 == 0
+7,EEB3,sub_EEB3,Called in wait loop at $E2B8
+7,EEEE,nmi_ppu_update,PPU VRAM update driven by $AD flags
+7,EF73,sub_EF73,VRAM address calculation helper
+7,ED43,chr_bank_table,CHR bank pairs (chr0 chr1) indexed by $38*2
+7,E5B6,sub_E5B6,Jump target from $EEEE when $AD bit 7 clear
+7,E4D0,nmi_read_controller,Controller read with debounce
+7,E548,nmi_bank0_tramp,Switch to bank 0 JSR $8000 then restore
+7,F24A,sub_F24A,Called from wait_nmi
+0,809E,sound_main,Sound engine main - save state process audio restore
+0,883F,play_sound,Play sound effect from A register
+0,85A7,audio_process,Audio frame processing
+0,8000,bank0_entry,JMP $809E - sound engine entry
+6,8000,game_jtable,Main game dispatch jump table (32 entries)
+6,8041,mode_dispatch,Two-level dispatch: $19 selects sub-mode via $E97D
+6,8046,mode_table,Inline addr table for $19 dispatch (12 entries)
+6,8068,mode0_overworld,Overworld action gameplay loop
+6,80B6,mode1_scroll_out,Screen scroll-out transition
+6,80C1,shared_setup,Common mode setup: $8A3E $87BE $E09C $E8EF $EACA
+6,8178,shared_screen_enter,Shared screen entry finalize sub-state
+6,80FE,shared_scroll_finish,Shared scroll-out finalize sub-state
+6,8195,shared_interact_init,Shared interaction init (modes 3 4)
+6,812A,mode2_scroll_in,Screen scroll-in transition
+6,818A,mode3_npc,NPC/town interaction (dialogue shop)
+6,81FD,mode4_encounter,Random battle encounter transition
+6,8252,mode5_battle,RPG turn-based battle
+6,82BF,mode6_victory,Battle victory exit transition
+6,82F4,mode7_dialogue,Dialogue/text box display
+6,8311,shared_text_advance,Text advance loop (5-frame delay) shared by modes 7 8
+6,8338,mode8_cinematic,Chapter intro / cinematic sequence
+6,845E,mode9_warp,Warp / area load transition
+6,8494,mode10_gameover,Game over / death sequence
+6,85DE,mode11_title,Title screen / chapter init
+6,880F,check_game_active,Check if game is active ($0601 entities)
+6,887B,setup_screen,Setup screen layout from A parameter
+6,8787,scroll_transition,Scroll/map transition with Y=direction
+6,8A3E,sub_8A3E,Mode setup helper
+6,87BE,sub_87BE,Mode setup helper
+6,8A78,entity_process,Game logic - entity/object processing
+6,8AE4,jtable_3,Jump table entry 3
+6,8AF4,jtable_4,Jump table entry 4
+6,8BB5,wait_flags,Wait loop - polls $031C flags
+6,8C76,jtable_6,Jump table entry 6
+6,92E2,entity_tick,Entity processing called from overworld
+6,90C5,sub_90C5,Overworld game processing
+6,950F,sub_950F,Entity lookup routine
+6,FA31,entity_spawn,Entity spawn/setup routine
+7,E0CD,text_advance,Text engine advance routine
+7,E0D5,text_complete,Text completion routine
+7,E33C,sub_E33C,Game sub called from overworld
+7,E389,level_init,Level initialization
+7,F09B,render_setup,Rendering setup sub
+7,F185,boss_battle_init,Boss/special battle init
+6,A130,dict_items,Dictionary: items/terms (DRAGOON KASHIM ROSTAM CARPET etc)
+2,9B44,dict_chars,Dictionary: characters/enemies/units (FARUK HASSAN CYGNUS etc)
+2,B000,music_entry,Music driver entry (called from bank 7 $E9DD)
+7,EF7E,data_bank_setup,Setup CHR or PRG bank for data reads ($EA bit 5 selects)
