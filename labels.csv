@@ -89,3 +89,7 @@ bank,addr,name,comment
 2,9B44,dict_chars,Dictionary: characters/enemies/units (FARUK HASSAN CYGNUS etc)
 2,B000,music_entry,Music driver entry (called from bank 7 $E9DD)
 7,EF7E,data_bank_setup,Setup CHR or PRG bank for data reads ($EA bit 5 selects)
+7,E8C8,set_chr_mode,Store A to $38 (chr_bank_index) and set NMI flag bit 4
+7,DE93,battle_screen_setup,RPG battle screen init: sets $38=5 then lays out battle HUD
+*,0525,saved_chr_mode,Saved chr_bank_index for UI engine restore
+*,04D0,music_chr_save,Saved chr_bank_index for music driver CHR restore

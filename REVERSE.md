@@ -162,18 +162,123 @@ Full traced flow:
 
 #### CHR Bank Selection Table ($ED43)
 
-Indexed by $38 (mode), read as pairs (chr0, chr1) for 4KB CHR banking:
+Indexed by $38 (chr_bank_index), read as pairs (chr0, chr1) for 4KB CHR banking.
+NMI reads `$38`, doubles it as table index, and calls mmc1_write_chr0/chr1 with the pair.
 
-| $38 | CHR0 | CHR1 | Notes |
-|-----|------|------|-------|
-| 0 | $00 | $14 | Default (init) |
-| 1 | $05 | $14 | |
-| 2 | $05 | $06 | |
-| 3 | $07 | $0E | |
-| 4 | $08 | $09 | |
-| 5 | $10 | $09 | |
-| 6 | $0D | $06 | |
-| 7 | $0A | $14 | |
+Full 32-entry table:
+
+| $38 | CHR0 | CHR1 | Game Context |
+|-----|------|------|--------------|
+| $00 | $00 | $14 | Default (init), title screen reset, text display reset |
+| $01 | $05 | $14 | Dungeon interior (Ch 1-4) |
+| $02 | $05 | $06 | Dungeon interior (Ch 5) |
+| $03 | $07 | $0E | RPG battle, warp/boss transition |
+| $04 | $08 | $09 | -- |
+| $05 | $10 | $09 | RPG battle screen (bank 3 $90CF, bank 7 $DE93) |
+| $06 | $0D | $06 | HUD/menu overlay, shop screen (bank 1 $A2F4, $B480) |
+| $07 | $0A | $14 | Overworld variant (Ch 1, 4) |
+| $08 | $02 | $06 | Overworld variant (Ch 2) |
+| $09 | $03 | $06 | Overworld variant (Ch 4) |
+| $0A | $04 | $06 | Overworld variant (Ch 5) |
+| $0B | $01 | $06 | Overworld variant (Ch 1, 3) |
+| $0C | $07 | $0E | Dungeon variant (Ch 3-5) |
+| $0D | $07 | $0F | Dungeon variant (Ch 3-5) |
+| $0E | $0A | $11 | Town/building (Ch 2-4) |
+| $0F | $0A | $12 | Overworld primary (most common: 279 screens, all chapters) |
+| $10 | $0A | $13 | Overworld variant (Ch 3-5) |
+| $11 | $0C | $11 | Town/dungeon (all chapters) |
+| $12 | -- | -- | (no WorldScreen usage; see $14+) |
+| $13 | $0B | $06 | Town interior (all chapters, 99 screens) |
+| $14 | $05 | $12 | Multi-chapter variant (Ch 2-5) |
+| $15 | -- | -- | (not used in WorldScreen data) |
+| $16 | $05 | $11 | Multi-chapter overworld/town (112 screens) |
+| $17 | $05 | $12 | Chapter-specific areas (Ch 1-3, 5) |
+| $18 | $05 | $13 | Chapter-specific areas (all chapters) |
+| $19 | $07 | $14 | Chapter intro cinematic (bank 1 $B00E) |
+| $1A | $0C | $06 | Special overworld (Ch 1, 4) |
+| $1B | $0A | $09 | Boss/encounter setup (bank 6 $95E8) |
+| $1C | $0C | $13 | Dungeon variant (Ch 4-5) |
+| $1D | $05 | $06 | -- |
+| $1E | $0B | $14 | Screen transition / warp (bank 1 $AFFF, bank 6 $8D26) |
+| $1F | $00 | $06 | Game-over/special screen init (bank 6 $923D) |
+
+**$38 sources** -- how chr_bank_index gets set:
+
+| Source | Code | When |
+|--------|------|------|
+| DataPointer ($B8) bits 0-5 | Bank 4 $8436: `LDA $B8; AND #$3F; STA $38` | Every screen load (739 WorldScreen records) |
+| DataPointer restore | Bank 6 $94F2, $9706: same AND #$3F pattern | Re-entering overworld after sub-mode |
+| Direct immediate | Various `LDA #imm; JSR $E8C8` | Mode transitions (see below) |
+| RAM variable $0525 | Bank 1 $8198: `LDA $0525; JSR $E8C8` | Screen/UI engine restore |
+| RAM variable $04D0 | Bank 2 $AA58: `LDA $04D0; JSR $E8C8` | Music driver CHR restore |
+
+**Direct CHR mode sets by game function:**
+
+| Caller | $38 | CHR0/1 | Function |
+|--------|-----|--------|----------|
+| Bank 7 $DEA0 | $05 | $10/$09 | RPG battle screen layout |
+| Bank 7 $DF01 | $0F | $0A/$12 | Post-battle return to overworld |
+| Bank 3 $90CF | $05 | $10/$09 | Battle engine init |
+| Bank 1 $A116 | $00 | $00/$14 | Screen engine default reset |
+| Bank 1 $A2F4 | $06 | $0D/$06 | Shop/menu HUD |
+| Bank 1 $AA13 | $03 | $07/$0E | Dialogue portrait display |
+| Bank 1 $AFFF | $1E | $0B/$14 | Transition/warp screen |
+| Bank 1 $B00E | $19 | $07/$14 | Chapter intro cinematic |
+| Bank 1 $B341 | $00 | $00/$14 | Text display init |
+| Bank 1 $B480 | $06 | $0D/$06 | Menu overlay |
+| Bank 6 $8D26 | $1E | $0B/$14 | Warp/transition (overworld) |
+| Bank 6 $8E05 | $03 | $07/$0E | Entity spawn transition |
+| Bank 6 $923D | $1F | $00/$06 | Game-over screen init |
+| Bank 6 $95E8 | $1B | $0A/$09 | Boss encounter setup |
+| Bank 6 $B37C | $03 | $07/$0E | Warp zone/boss |
+
+#### CHR Bank Pairing by Game Mode
+
+**Overworld action** ($19=0): $38 set from DataPointer per screen. Most common $38=$0F (CHR0=$0A/CHR1=$12). CHR0 bank 10 ($0A) = overworld sprites+bg. CHR1 varies by chapter tileset ($11-$13 = banks 17-19).
+
+**RPG battle** ($19=5): $38=$05 (CHR0=$10/CHR1=$09 = battle sprites and battle background). Set at bank 7 $DEA0 and bank 3 $90CF.
+
+**Post-battle return** ($19=6): $38=$0F restored (CHR0=$0A/CHR1=$12 = back to overworld).
+
+**Town/NPC/shop** ($19=3): DataPointer-driven for town visuals, then $38=$06 (CHR0=$0D/CHR1=$06) for shop/menu HUD overlay.
+
+**Dialogue/text** ($19=7): $38=$03 (CHR0=$07/CHR1=$0E) for portrait dialogue, $38=$00 for simple text reset.
+
+**Screen transitions** ($19=1,2): $38=$1E (CHR0=$0B/CHR1=$14) during warp, DataPointer restored on arrival.
+
+**Chapter intro** ($19=8): $38=$19 (CHR0=$07/CHR1=$14) for cinematic sequences.
+
+**Title screen** ($19=11): $38=$00 (default CHR), then per-phase setup.
+
+**Game over** ($19=10): $38=$1F (CHR0=$00/CHR1=$06) for death screen.
+
+**Boss encounter** (special): $38=$1B (CHR0=$0A/CHR1=$09) for boss setup at bank 6 $95E8.
+
+#### CHR 4KB Bank Content Summary (by bank number)
+
+| 4KB Bank | Content | Used By |
+|----------|---------|---------|
+| $00 | Font + basic tiles | Title, text, game-over |
+| $01 | Dungeon tileset A | Ch 1,3 dungeons ($0B) |
+| $02 | Dungeon tileset B | Ch 2 overworld variant ($08) |
+| $03 | Area tileset C | Ch 4 overworld variant ($09) |
+| $04 | Area tileset D | Ch 5 overworld variant ($0A) |
+| $05 | Dungeon/interior sprites | Multiple dungeon modes ($01,$02,$14,$16-$18) |
+| $06 | Common background tiles | Shared CHR1 for 12+ modes |
+| $07 | Battle/cinematic sprites | Battle ($03,$0C,$0D), cinematic ($19) |
+| $08 | Player/NPC sprites A | Mode $04 |
+| $09 | Battle background | RPG battle CHR1 ($04,$05,$1B) |
+| $0A | Overworld sprites | Primary overworld CHR0 ($0E-$10,$1B) |
+| $0B | Transition sprites | Warp/transition ($1E), town interior ($13) |
+| $0C | Town sprites variant | Town/dungeon CHR0 ($11,$1A,$1C) |
+| $0D | Menu/HUD tiles | Shop/menu overlay ($06) |
+| $0E | Battle background B | Battle CHR1 ($03,$0C) |
+| $0F | Battle background C | Dungeon variant CHR1 ($0D) |
+| $10 | Battle sprites | RPG battle CHR0 ($05) |
+| $11 | Chapter tileset 1 | Towns ($0E,$11), multi-chapter ($16) |
+| $12 | Chapter tileset 2 | Primary overworld ($0F), multi ($14,$17) |
+| $13 | Chapter tileset 3 | Overworld ($10,$18,$1C) |
+| $14 | Default CHR1 (init) | Default mode ($00), dungeons ($01,$07), cinematic ($19) |
 
 #### Main Game Loop ($E290)
 
@@ -642,7 +747,7 @@ Several sub-state addresses are reused across modes:
 - [x] Locate and decode text/character encoding table (tile $00-$09=digits, $30-$49=A-Z, $2C=space)
 - [x] Map PRG bank contents -- identify banks 1, 3, 5 roles
 - [x] Investigate CHR 4KB banks 21-31 -- classified: 21=pointer table, 22-24=dialogue, 25=nametable cmds, 26-28=level data, 29-31=tilemaps
-- [ ] Decode 4KB bank pairing per game mode (action vs RPG battle vs menu vs overworld)
+- [x] Decode 4KB bank pairing per game mode (action vs RPG battle vs menu vs overworld)
 - [x] Disassemble $E110 and $E11A -- per-frame dispatch system (bank 6 jump table)
 - [x] Decode mode_dispatch sub-table at $8041+$46 -- all 12 game modes identified
 - [ ] Trace bank 2 $B000 music driver entry point
