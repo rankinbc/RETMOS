@@ -357,7 +357,7 @@ The $E17B (inline_dispatch) variant reads $3A and bank number from inline data b
 |------|------|----------|
 | 0 | Sound engine | Called every NMI via trampoline; APU $4015, $883F sound player |
 | 1 | Screen/UI engine + dialogue | 24-entry jump table at $8000; dispatched via $E03F-$E011 trampoline. Code for title screen, chapter intros, menu layouts, HUD rendering, NPC dialogue display. Contains word dictionary at $B8B1 and formatted dialogue text at $BB-$BF |
-| 2 | Music data/driver | Called from sound engine: $E9DD switches to bank A, JSR $B000 |
+| 2 | Music data/driver | 33 songs + 18 SFX sequences. Music sequencer ($BE81) drives 4 APU channels. Called from bank 0 $80D8 via $E9DD trampoline |
 | 3 | RPG battle engine | 5-entry jump table at $8000 (3 route to bank 7 code). Entry 0 ($90AD) = battle init. Dispatched via $E06D-$E05F trampoline. Contains battle screen setup ($940A), palette/tile layout ($8B56+), encounter data tables ($8400+, $FF-heavy), entity/party stat processing. Called from bank 7 $C883/$C89D and bank 5 $AE8D |
 | 4 | Data tables | $E776: LDA #$04, JSR mmc1_write_prg, then pointer reads via ($D1),Y |
 | 5 | Entity/sprite behavior engine | 22-entry jump table at $8000; dispatched via $E0D5-$E0AB trampoline (most-called bank, 26 calls from bank 6). Entity type dispatch table at $80E5 (32+ entity types). Per-type behavior state machines with sub-state pointer tables. Handles player sprite, NPC movement, enemy AI, collision response, entity spawning. $B48C+ contains entity stat/parameter tables. $BFC0-$BFDA has additional data, $BFE0-$BFFF = $FF padding |
@@ -365,6 +365,94 @@ The $E17B (inline_dispatch) variant reads $3A and bank number from inline data b
 | 7 | Core engine (fixed) | NMI, bank switching, dispatch, I/O, frame sync |
 
 Dynamic bank access: $EFA3 uses `$EA & 7` as bank number for VRAM data reads (level/tilemap data).
+
+#### Sound System Architecture (Banks 0 + 2)
+
+The sound system spans two PRG banks with a clear division of labor:
+
+**Bank 0 -- SFX Engine (called every NMI via $E548 trampoline)**
+
+1. `$809E` (sound_main): Saves ZP $D9-$DF, processes queued sound requests from `$03E5`/`$03E7` buffer, enables APU ($4015=$0F), calls `$85A7` (audio_process), then calls bank 2 music driver via `LDA #$02; JSR $E9DD`.
+2. `$883F` (play_sound): Dispatches SFX by ID. `$FF` = silence all channels + reset state. IDs < $90 look up `$800E+ID` for channel assignment (bits 7:6 = channel 0-3, bits 5:0 = priority). Higher priority overrides current SFX on that channel.
+3. `$85A7` (audio_process): Reads `$FB` (SFX channel request), looks up pointer pair from `$8D17+ID*4`, sets up channel data at `$0340`/`$0349` for Pulse1/Triangle SFX overlay.
+4. `$80F9`: Post-music processing for `$F8` (SFX request). Special values: `$3F` = tempo change, `$3E` = pitch bend. Normal values index into `$8B90` SFX data table.
+
+**Bank 2 -- Music Sequencer ($B000, called from bank 0 $80D8)**
+
+Entry point `$B000`: JSR `$BE81` (tone channel sequencer) then JSR `$B73E` (noise channel handler).
+
+`$BE81` (music_seq_tick): Processes 4 tone channels (Pulse1, Pulse2, Triangle, DMC) in a loop:
+- Channel state at `$0380+X*4`: [ptr_lo, ptr_hi, duration, last_period_hi]
+- X iterates 0, 4, 8, 12 (CPX #$10 loop)
+- `$D4` = channel bitmask (ASL each iteration: $01, $02, $04, $08)
+- If duration ($0382,X) nonzero and bit 7 clear: decrement and skip (note sustain)
+- If duration expired: read next sequence bytes from ($D0),Y
+  - Byte 0 = APU volume/duty register ($4000+X)
+  - Byte 1 = duration counter -> $0382,X
+  - If duration bit 7 set: JSR `$BF3B` (sweep + period lookup) -- note with sweep
+  - If duration bit 7 clear: JSR `$BF64` (direct period write) -- note without sweep
+- Special bytes: $00 = channel end (silence + clear), $01 = loop/repeat command
+- Sequence pointer advances by 4 bytes per note event
+
+`$B73E` (noise_seq_tick): Dedicated noise channel ($400C-$400F) handler:
+- `$FA` = noise SFX request ID, `$FE` = current noise track ID
+- Pointer pair from `$B157+ID*2` -> noise sequence data at `$0158`/`$0159`
+- Noise note format: byte 0 = volume (low nibble -> $400C with $F0 mask), byte 1 = duration -> `$015A`
+- Period: byte 0 >> 4 combined with `$D5` (from byte 1 bit 7) -> `$400E`
+- `$400F` always written as `$88` (length counter load)
+- Special bytes: $00 = stop noise, $01 = loop marker (read next 2 bytes as new pointer)
+
+**Note Period Tables:**
+
+`$B189` (40 entries, 16-bit LE): Pulse/Triangle periods covering ~3.3 octaves (A1=$07F0 to ~C#5=$00D4). Standard NES APU period values: freq = 1789773 / (16 * (period + 1)).
+
+`$B1D8` (40 entries, 16-bit LE): Triangle-specific period table (used when X=$0C). Triangle periods are different due to the triangle channel running at 1 octave lower for the same period value.
+
+**Song Data Organization:**
+
+Song pointer table at `$B005` (34 entries, 16-bit LE). Entry 0 = $60B7 (invalid/no-song sentinel). Entries 1-33 point to 8-byte song headers at $B051-$B151.
+
+Each song header = 4 x 16-bit pointers (one per channel):
+- Channel 0: Pulse 1 (used by 1 song only -- #23; otherwise reserved for bank 0 SFX)
+- Channel 1: Pulse 2 (primary melody, used by 29 of 33 songs)
+- Channel 2: Triangle (bass line, used by 2 songs: #23, #32)
+- Channel 3: Noise (percussion, used by 7 songs: #4, #8, #10, #13, #25, #29, #31, #33)
+
+Song #11 and #12 are empty (all channels $0000) -- likely placeholder/silent entries.
+Song #23 is the most complex: Pulse1 + Pulse2 + Triangle (3 channels).
+Song #32 shares the same data pointer ($B4E8) for Pulse2 and Triangle.
+
+SFX pointer table at `$B157` (18 entries, 16-bit LE): Noise/percussion sequence pointers for the $B73E handler. These handle rhythm/percussion effects independently from the song system.
+
+**Request Interface (ZP $F8-$FB):**
+
+| Addr | Name | Written By | Read By | Purpose |
+|------|------|-----------|---------|---------|
+| $F8 | sfx_request | Game code via $03E5/$03E7 queue | Bank 0 $80F9 | SFX ID for bank 0 channel overlay |
+| $F9 | song_request | Game code (indirect) | Bank 2 $BE81 | Song ID (1-33) to start playing |
+| $FA | noise_request | Game code (indirect) | Bank 2 $B73E | Noise SFX ID (1-18) |
+| $FB | sfx_channel_req | Game code (indirect) | Bank 0 $85A7 | SFX channel setup request |
+
+All four are cleared to 0 by bank 0 `$80E2` after each frame's processing.
+
+**Sound request queue** ($03E5/$03E7): Game code writes sound IDs to `$03E7+N` and increments `$03E5` (count). Bank 0 `$809E` drains this queue each frame, calling `$883F` (play_sound) for each entry.
+
+**queue_sound ($E992)**: The main API for triggering sounds from game code. A=sound ID. Called from 84 sites (21 in bank 7, 63 in bank 6). Special values: $FF = silence all channels + reset, $00 = no-op. Normal values are enqueued (max 6 pending). The enqueued IDs are processed by `play_sound` ($883F) in bank 0, which routes them to the appropriate APU channel based on a priority table at `$800E`.
+
+**play_sound ($883F)** routing: Each sound ID indexes into `$800E+ID` for a channel/priority byte:
+- Bits 7:6 = channel (0=Pulse1, 1=Pulse2, 2=Triangle, 3=Noise)
+- Bits 5:0 = priority (higher overrides current SFX on that channel)
+- $00 = silent/invalid ID
+- Current channel priority stored at ZP `$F8+channel` (0-3)
+- SFX data pointers at `$8B90+ID*2` point to 8-byte SFX records in bank 0 $8C02-$8CF9 (62 entries, stride 8)
+
+**NMI audio call chain:**
+1. NMI -> $E548: switch to bank 0, JSR $8000 (-> JMP $809E sound_main)
+2. $809E: drain $03E7 queue via play_sound, enable APU, ASL $F6, call $85A7 (audio_process)
+3. $80D8: LDA #$02, JSR $E9DD -> switch to bank 2, JSR $B000 (music sequencer)
+4. $80F9: process $F8 SFX request (bank 0 SFX overlay)
+5. $80E2: clear $F8-$FB requests
+6. Restore ZP $D9-$DF, return
 
 #### Unified Bank Dispatch Architecture
 
@@ -750,7 +838,7 @@ Several sub-state addresses are reused across modes:
 - [x] Decode 4KB bank pairing per game mode (action vs RPG battle vs menu vs overworld)
 - [x] Disassemble $E110 and $E11A -- per-frame dispatch system (bank 6 jump table)
 - [x] Decode mode_dispatch sub-table at $8041+$46 -- all 12 game modes identified
-- [ ] Trace bank 2 $B000 music driver entry point
+- [x] Trace bank 2 $B000 music driver entry point
 - [ ] Map bank 4 data table structures (pointer dereferencing at $E776)
 - [x] Identify banks 1, 3, 5 roles (trace remaining bank switch patterns)
 - [ ] Map OAM buffer structure at $0200-$02FF
@@ -758,6 +846,9 @@ Several sub-state addresses are reused across modes:
 - [ ] Decode text engine code -- find the routine that processes $80+ control codes in dialogue
 - [ ] Scan all PRG banks for dictionary tables (search for bit-7-marked word sequences)
 - [ ] Decode bank 1 dialogue format -- map control codes to functions (newline, pause, dict ref)
+- [ ] Map bank 0 SFX data format ($8B90 table, 62 SFX records at $8C02-$8CF9, stride 8)
+- [ ] Identify song IDs by game context (trace LDA #imm; JSR $E992 patterns to map song numbers to overworld/battle/town/etc)
+- [ ] Trace bank 0 $85A7 audio_process SFX channel overlay system ($0340/$0349 channel data)
 
 ### Web Port Fixes
 

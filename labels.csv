@@ -31,7 +31,7 @@ bank,addr,name,comment
 7,E17B,inline_dispatch,Read dispatch params from inline data after JSR
 7,E290,game_loop,Main game processing loop (while $80 != 0)
 7,E97D,indexed_jmp,A=index into inline addr table following JSR then JMP
-7,E992,sub_E992,Mode transition handler - dispatches on A value
+7,E992,queue_sound,Queue sound: A=ID ($FF=silence $00=nop else enqueue to $03E7). 84 call sites
 7,E0EC,sub_E0EC,Called when game state $80 == 0
 7,EEB3,sub_EEB3,Called in wait loop at $E2B8
 7,EEEE,nmi_ppu_update,PPU VRAM update driven by $AD flags
@@ -93,3 +93,25 @@ bank,addr,name,comment
 7,DE93,battle_screen_setup,RPG battle screen init: sets $38=5 then lays out battle HUD
 *,0525,saved_chr_mode,Saved chr_bank_index for UI engine restore
 *,04D0,music_chr_save,Saved chr_bank_index for music driver CHR restore
+2,BE81,music_seq_tick,Music sequencer tick: process 4 tone channels (Pulse1/2 Triangle DMC)
+2,B73E,noise_seq_tick,Noise channel sequencer tick: process noise SFX via $FA request
+2,BF7F,song_init,Song init: load song header from $B005 table and set channel pointers
+2,BF3B,note_with_sweep,Write APU sweep + period from $B189 lookup table
+2,BF64,note_direct,Write APU period directly (no sweep)
+2,BFC8,seq_loop_cmd,Sequence command $01: advance pointer and re-enter channel loop
+2,B005,song_ptr_table,Song pointer table (34 entries: 0=none 1-33=songs)
+2,B157,noise_ptr_table,Noise SFX pointer table (18 entries)
+2,B189,note_period_table,Note period lookup table (40 entries pulse/triangle)
+2,B1D8,tri_period_table,Triangle-specific period table (40 entries)
+0,80D8,call_music_driver,Switch to bank 2 and call $B000 music driver
+0,80F9,process_sfx_request,Process $F8 SFX request: $3F=tempo $3E=pitch normal=play
+0,8B90,sfx_data_table,SFX data pointer table (indexed by $F8 value)
+7,E9DD,bank_trampoline,Switch PRG to bank A then JSR $B000 then restore bank 0
+*,00F8,sfx_request,SFX request ID (cleared after processing)
+*,00F9,song_request,Song request ID 1-33 (cleared after processing)
+*,00FA,noise_request,Noise SFX request ID 1-18 (cleared after processing)
+*,00FB,sfx_chan_request,SFX channel setup request (cleared after processing)
+*,00FD,current_song,Currently playing song ID
+*,00FE,current_noise,Currently playing noise track ID
+*,0380,ch_state_base,Music channel state base: 4 channels x 4 bytes (ptr_lo ptr_hi duration last_period)
+*,0394,channel_active_mask,Bitmask of active music channels (bit 0-3)
