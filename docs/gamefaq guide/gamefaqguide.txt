@@ -1,0 +1,1982 @@
+  This guide is for The Magic of Scheherazade for the Nintendo Entertainment 
+System. Everything in the guide is laid out pretty straightforward in the 
+table of contents. As of right now, the prices listed in the FAQ are for the 
+Fighter class (I will eventually add the prices for the Magician and Saint 
+classes). If you have any questions, go check out my e-mail address in 
+the "Contact Me" section. And without further ado, I present to you my first 
+ever FAQ. Let's start now!!!
+
+***********************
+*  Table of Contents  *
+***********************
+
+1) The Story
+2) Characters
+     A. Isfa
+     B. Coronya
+     C. Faruk
+     D. Kebabu
+     E. Gun Meca
+     F. Supica
+     G. Epin
+     H. Pukin
+     I. Mustafa
+     J. Gubibi
+     K. Rainy
+     L. Hassan
+3) Controls
+4) Walkthrough
+     A. Chapter 1: Water World Mooroon
+     B. Chapter 2: Desert World Alalart
+     C. Chapter 3: Forest World Samalkand
+     D. Chapter 4: Flower World Celestern
+     E. Chapter 5: Evil Magician Sabaron
+5) Enemies and Formations
+6) Items and Spells
+7) Magic Field and Magic Star Locations
+8) Level-Up Chart
+9) Secret Passwords
+10) Contact Me
+11) Special Thanks
+12) Version History
+13) Copyright
+
+******************
+*  1. The Story  *
+******************
+
+   Here's some of the text from the opening sequence of the game. It is a 
+surprisingly good translation for a game made in 1990 that came from a 
+virtually unknown Japanese game studio that rarely made games for us North 
+American gamers (and yes, that was a great run-on sentence):
+
+   "One day peaceful Arabia was attacked by the demons. The evil magician 
+Sabaron summoned them from the dark world for his evil desire. One brave 
+magician attempted to fight him. But he failed, and his sweetheart was taken 
+and all his memories erased. He was even thrown into a different time period. 
+Do you remember this? The young magician is you. Only you can save Arabia. 
+Please fight Sabaron again!"
+
+   So basically, you (Isfa) tried to kill Sabaron, but you got majorly pwned 
+and Sabaron gave you a bad case of amnesia. You wake up on the other side of 
+Arabia (the side with lots of grass, in case you are wondering) with a pocket 
+full of change and a couple of extra lives. Coronya the fairy comes over to 
+you and says that you must rescue your girlfriend Scheherazade, her three hot 
+princess sisters, her father, and then you have to save the world. Of course, 
+she doesn't tell you that will have to fight through five monster-filled 
+worlds just to get your woman back. Luckily, you will have plenty of allies 
+join you on your quest, including a pair of genies, a wooden pumpkin doll, a 
+talking robot, a drum-playing rain god, and a monkey thief. Oh joy!
+
+*******************
+*  2. Characters  *
+*******************
+
+A. ISFA - The main hero. You can name him at the start of the game.
+
+B. CORONYA - Your guide for this quest. She's with you at the very beginning 
+of the game, so don't worry about having to find her. Her attacks are Rod, 
+Defenee, and Mymy.
+
+C. FARUK - Joins your party in Chapter 1. He can be found in the town of 
+Horen in the past. His attacks are Fight and Gilzade. When he uses Fight, he 
+will attack twice in one turn.
+
+D. KEBABU - Joins your party in Chapter 1. She can be found in the underwater 
+town of Horen in the present. Her attacks are Arrow, Bolttor1, and Seal.
+
+E. GUN MECA - Joins your party in Chapter 2. You'll meet up with him in 
+Copanes in the present after you talk to Lah in the town of Alart in the 
+past. His attacks are Fight, Bolttor2, and Silleit.
+
+F. SUPICA - Joins your party in Chapter 2. He is found in the Alalart Maze. 
+You have to talk to Lah after getting Gun Meca before he will to join you. 
+His attacks are Arrow and Seal.
+
+G. EPIN - Joins your party in Chapter 2. He is found in the Dark Palace. His 
+attacks are Fight, Defenee, and Whistle.
+
+H. PUKIN - Joins your party in Chapter 3. Supapa makes him for you after you 
+get the Cimaron fruit from the Cimaron tree. His attacks are Arrow, Gilzade, 
+and Velver.
+
+I. MUSTAFA - Joins your party in Chapter 3. He is in the town of Passora in 
+the present. You have to give him 100 Rupias for him to come with you. His 
+attacks are Fight, Mymy, and Bolttor2.
+
+J. GUBIBI - Joins your party in Chapter 4. He is in the Yufla Palace in the 
+present. His attacks are Rod, Defenee, and Resealo.
+
+K. RAINY - Joins your party in Chapter 4. He is in the underwater town of 
+Lava in the past. His attacks are Rod, Perius, and Matato.
+
+L. HASSAN - Joins your party in Chapter 5. He is found in the town of Yufla 
+in the present. His attacks are Fight, Flamol3, and Caraba.
+
+******************
+*  3. Controls   *
+******************
+
+          |A|
+                  -Select options on the menus and subscreens.
+                  -Use whatever item you set to the A button.
+     OPRIN        -Allows you to make a staircase appear in some screens.
+     JUMP         -Makes you jump!
+          |B|
+                  -Exit hotels, shops, mosques, etc.
+                  -Cancel a selection during a menu-based battle.
+                  -Use whatever item you set to the B button.
+     ROD          -A magical rod that you can use to shoot at enemies.
+     SWORD        -A sword to attack enemies with.
+     SPEAK        -Allows you to talk to the townspeople.
+     JUMP         -Makes you jump!
+        |START|
+                  -Choose an option on the title screen.
+                  -Pause the game and bring up the subscreen menu.
+        |SELECT|
+                  -Change between "Start" and "Continue" on the title screen.
+                  -Move between some options in menu-based battles.
+                  -Pause the game and bring up a status/map subscreen.
+        |D-PAD|
+                  -Move your character.
+                  -Move the cursor in most of the menus.
+
+********************
+*  4. Walkthrough  *
+********************
+
+   When you turn on the game, you will have the choice of changing the text 
+speed (Slow, Normal, Fast). Always put the speed on Fast unless you want to 
+waste your time waiting for the text to crawl onto the screen. To start a new 
+game, choose "START". To enter a password from the last time you played, 
+chooose "CONTINUE". After you begin, you will be asked to enter a name with 
+one to four letters. After that, the story will begin to unfold. When Coronya 
+asks for your help, answer "YES" (duh!). You will then be able to select your 
+Arabian class (don't worry- you can change your class in the game anytime you 
+want). I recommend that you choose the Fighter class to begin with.
+
+     FIGHTER: Your sword is the strongest weapon. Useful for regular fighting.
+     SAINT: Your sword and rod are weak. Lets you obtain Pukin in Chapter 3.
+     MAGICIAN: Your rod is the strongest weapon. Mostly used for bosses.
+
+   You begin the game with 50 Rupias and 2 extra lives. After you choose your 
+class, you will take your first trip through the time door and Chapter 1 will 
+begin.....
+
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+=  A. Chapter 1: Water World Mooroon  =
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+                                _______________
+                     <---------{               }--------->
+                     <---------{  The Present  }--------->
+                     <---------{_______________}--------->
+
+   "Oh, you are the great magician Isfa's descendant. Welcome back to Arabia! 
+You will depart to defeat Sabaron, won't you?" [Answer "YES"] "Sabaron took 
+away the great Arabian King Feisal and his four princesses. Yes, your 
+sweetheart Princess Scheherazade, too. Isfa, find Sabaron and defeat him. 
+You're the only hope for Arabia. You can do it! First talk to the 
+townspeople. Press the Start Button. Then, select 'SPEAK' and talk to people 
+with the B Button. Now, go. Good luck!"
+
+                     [ ]-[N]
+                      |
+                     [ ]     [P]-[1]-[2]-[3]-[H]
+                      |
+             [ ]-[P]-[ ]
+              |   |
+             [ ]-[ ]
+              |   |
+             [ ]-[ ]
+              |   |
+     [R]-[F]-[ ] [T]
+      |   |   |
+     [ ]-[ ]-[ ]
+      |
+     [ ]-[ ]
+      |   |
+     [ ]-[ ]-[ ]-[ ]-[ ]
+      |   |   |   |   |
+     [ ]-[ ]-[ ]-[ ]-[ ]
+                      |
+             [ ]-[ ]-[ ]
+              |
+             [ ]-[ ]-[ ]
+                      |
+                 [M]-[ ]
+
+M: Town of Meshudo
+R: Town of Rudoria
+F: Magic Field [use OPRIN]
+P: Town of Poponoll
+T: Time Door [use OPRIN]
+N: North Cape: Jump into the water to warp to "1"
+1: Water
+2: Water
+3: Water
+H: Town of Horen
+P: Aqua Palace
+
+   After listening to the priest's rantings, you'll begin in the town of 
+Meshudo. There is not much to do here, but you should at least visit the shop 
+before you leave. Pick up two or three bread loaves and two or three magic 
+carpets (the first listed price is the normal price, and the second one is 
+the discounted price; always ask for the discount if more than one price is 
+listed in the guide. Be careful- if you ask for too many discounts on one 
+item, the shopkeeper will take 10 Rupias and throw you out of the store.) You 
+can also borrow and repay money at the shop, but you don't need to do this. 
+Just ignore this function. You might also want to get acquainted with the how 
+hotels and mosques work. Staying the night at a hotel refills your HP and MP. 
+At a mosque, you can pay 20 Rupias to bring an ally back to life, you can ask 
+for a password, or you can change your class to any of the following:
+
+     Changing your class...
+                 to SAINT:     40 Rupias
+                 to FIGHTER:   60 Rupias
+                 to MAGICIAN: 100 Rupias
+
+          +++++++++++++++++
+          +TOWN OF MESHUDO+
+          +++++++++++++++++
+      ______   ______   ______
+     | Shop |-|Mosque|-|      |
+     |__  __|-|__  __|-|______|
+        ||       ||
+      __||__   __||__   ______
+     |      |-|      |-|Hotel |
+     |______|-|__  __|-|______|
+                 ||
+
+Hotel: 10 Rupias/night
+Shop:
+     Bread-        20/10 Rupias
+     Mashroob-     20/10 Rupias
+     Carpet-       20/10 Rupias
+     R. Seed-     100/50 Rupias
+
+   Done in Meshudo? Good. Now leave town and head north to Rudoria. On the 
+way, you'll encounter some monsters for the first time. Keep some distance 
+between yourself and them and fight them off with your sword or rod. Try to 
+get up to at least level 3 before you get to Rudoria. Once you get there, use 
+the magic of OPRIN in the first screen and collect the money she gives you. 
+Now head over to Jad's place and he'll tell you about the time door. After 
+you are done, pick up a Rupia seed from the shop and whatever else you might 
+need. Now head off to Poponoll.
+
+          +++++++++++++++++++++++++++
+          +TOWN OF RUDORIA (Present)+
+          +++++++++++++++++++++++++++
+      ______   ______
+     | Jad  |-|Hotel |
+     |__  __|-|______|
+        ||
+      __||__   ______
+     |Woman |-| Shop |
+     |__  __|-|______|
+        ||
+
+Woman: Gives you 50 Rupias [use OPRIN]
+Hotel: 20 Rupias/night
+Shop:
+     Bread-        60/30 Rupias
+     Mashroob-     60/30 Rupias
+     Carpet-       60/30 Rupias
+     R. Seed-     100/50 Rupias
+
+   The game tells you to go to the time door, but instead, we will be taking 
+a brief detour to Poponoll. Go talk to Dogos the crazy lady, and then if you 
+want to, you can go play the roulette game at the casino. The game itself is 
+pretty simple, so you should be able to figure it out. I always have the most 
+luck with the penguin or the fox. If you have the ability to use save states 
+(heh heh), then this would be a great place to exploit their powers. Also 
+note that playing during a solar eclipse greatly increases your chance of 
+winning. After you have enough Rupias to satisfy yourself, go south to the 
+time door on the dock.
+
+          ++++++++++++++++++
+          +TOWN OF POPONOLL+
+          ++++++++++++++++++
+      ______   ______
+     |Dogos |-|Casino|
+     |__  __|-|______|
+        ||
+      __||__   ______
+     |      |-|Hotel |
+     |______|-|__  __|
+                 ||
+
+Hotel: 20 Rupias/night
+
+   You should be on the dock now. Use OPRIN and open up the passage to the 
+time door. Coronya will tell you some useful information, and then you will 
+be taking your first real trip through time. After you arrive, head towards 
+Rudoria. If there happens to be a solar eclipse at the moment, go ahead and 
+plant a seed at the magic field (use OPRIN and talk to the nice lady) before 
+you go into town. If not, use a magic carpet to come back to this spot when 
+there is a solar eclipse. Planting Rupia seeds will get you a lot of money.
+                           ________________________
+                <---------{                        }--------->
+                <---------{  50 Years in the Past  }--------->
+                <---------{________________________}--------->
+
+             [ ]-[ ]
+              |   |
+     [R]-[F]-[ ] [T]     [ ]-[H]
+      |   |   |           |   |
+     [ ]-[ ]-[ ]         [ ]-[ ]
+      |                   |   |
+     [ ]                 [ ]-[ ]
+      |                   |   |
+     [ ]-[ ]-[ ]-[ ]     [ ]-[ ]
+      |   |   |   |       |   |
+     [ ]-[ ]-[ ]-[ ]     [M]-[ ]
+                  |           |
+                 [ ]-[ ]-[ ]-[ ]
+
+T: Time Door [use OPRIN]
+F: Magic Field [use OPRIN]
+R: Town of Rudoria
+H: Town of Horen
+M: Mooroon Maze
+
+   You will find the first Magic University in Rudoria. Go there first and 
+pass all the classes and collect the upgrades for the sword and the rod. If 
+you fail the guy's exam (which is impossible if you have any basic reading 
+ability), you can pay 10 Rupias to take it again. If you fail twice (which 
+really is impossible unless you purposefully try to do it), you can bribe the 
+pirate dude with 20 Rupias and he'll automatically pass you. Wheee! Once you 
+are done at the university, you might want to stop by the shop if you are 
+running low on carpets or bread. Now you can begin the long trek to the town 
+of Horen.
+
+          ++++++++++++++++++++++++
+          +TOWN OF RUDORIA (Past)+
+          ++++++++++++++++++++++++
+      ______   ______
+     |Mosque|-| Shop |
+     |__  __|-|______|
+        ||
+      __||__   ______
+     |      |-|  MU  |
+     |__  __|-|______|
+        ||
+
+MU (Magic University):
+     Admission Fee-  20 Rupias
+     Cygnus Course-  10 Rupias
+     Monecom Course- 10 Rupias *Reward is the FLAME [Replaces ROD]*
+     Alalart Course- 10 Rupias *Reward is the SIMITAR [Replaces SWORD]*
+Shop:
+     Bread-        60/30 Rupias
+     Mashroob-     60/30 Rupias
+     Carpet-       60/30 Rupias
+     R. Seed-     100/50 Rupias
+
+   This is the first place you can buy troopers. I don't recommend buying 
+them unless you have plenty of money to burn. Every trooper shop in the game 
+sells them for the same price (100 Rupias for 4 of them). In the menu-based 
+battles, as many as four troopers will fight for you at the start of the 
+battle. They will automatically attack the enemies unless you use a group 
+magic attack. They have weak defense, so you'll probably lose a few of them 
+in some of the tougher battles. You can carry a maximum of 99 troopers at a 
+time. After you've done what you need to do, go to the shop and pick up a map 
+(and a carpet if you don't have any). Then go talk to Faruk and he'll join 
+your party. With your new, much stronger team, head to the Mooroon Maze.
+
+          ++++++++++++++++++++++
+          +TOWN OF HOREN (Past)+
+          ++++++++++++++++++++++
+      ______   ______
+     | Shop |-|FARUK |
+     |__  __|-|______|
+        ||
+      __||__   ______   ______
+     |      |-|Troops|-|Hotel |
+     |______|-|__  __|-|______|
+                 ||
+
+FARUK: Faruk joins your party here.
+Hotel: 10 Rupias/night
+Shop:
+     Bread-        20 Rupias
+     Mashroob-     20 Rupias
+     Carpet-       20 Rupias
+     Map-          40 Rupias
+
+   This maze is very simple, so this will be easy. Go down, then take the 
+left path down again. Now go left, up, up, and up again. Get the magic of 
+Monecom from the old man and then use a magic carpet to fly back to Rudoria. 
+Plant a Rupia seed if there is a solar eclipse, then head back to the time 
+door and travel forward in time.
+
+          ##############
+          #MOOROON MAZE#
+          ##############
+
+      M
+      |
+     [ ] [E]
+      |   |
+     [ ] [ ]
+      |   |
+     [ ]-[ ]
+
+E: Entrance and Exit
+M: Great Magic of Monecom
+                                _______________
+                     <---------{               }--------->
+                     <---------{  The Present  }--------->
+                     <---------{_______________}--------->
+
+   Once you are back in the present, go harvest the Rupia tree, and then fly 
+to Meshudo and stock up on items. Fly back to Poponoll, then head to the 
+North Cape. Jump into the water (Faruk apparently allows you to breathe 
+underwater) and go to Horen. Buy some keys and horns from the shop, and get 
+some troopers if you have any money leftover. Point and laugh at Beckal, then 
+go meet Kebabu. She'll ask you a question about hamburger shops or something. 
+If you answer "YES", she will give you the Mirror Shield and join your party. 
+She also gives you the Ring. Now use the stairs in town to go back to the 
+North Cape. Jump back into the water and enter the Aqua Palace.
+
+          +++++++++++++++++++++++++
+          +TOWN OF HOREN (Present)+
+          +++++++++++++++++++++++++
+      ______   ______
+     | Shop |-|KEBABU|
+     |__  __|-|______|
+        ||
+      __||__   ______   ______
+     |Stairs|-|Troops|-|      |
+     |______|-|__  __|-|______|
+                 ||
+
+KEBABU: Kebabu joins your party here.
+Stairs: Warps you back to the North Cape.
+Shop:
+     Bread-        20/10 Rupias
+     Mashroob-     20/10 Rupias
+     Key-          40/20 Rupias
+     Horn-         40/20 Rupias
+
+          #############
+          #AQUA PALACE#
+          #############
+
+Boss: Water Demon Gilga
+Prisoner: Princess Ashelato
+
+     [ ]-[ ]-[ ]
+          |   |
+     [ ] [ ] [ ]          B
+      |   |   |           |
+     [ ]-[ ] [L] [ ]-[ ] [ ]
+          |   |   |   |   |
+          E  [ ]-[ ] [W] [ ]
+                      |   |
+                     [L] [H]
+                      |   |
+                     [ ]-[ ]
+
+E: Entrance
+W: There is a water trap right when you enter the room. Don't fall in.
+L: The northern door of this room will lock once you leave the room. If you 
+want to go back, you will need a key.
+H: Use a horn against one of the two statues.
+B: Boss
+
+   This first palace is extremely easy. Follow the path on the map to get to 
+the boss. Near the beginning, you'll encounter an enemy that continuously 
+spawns from a little "house" in a narrow room. You can destroy its house with 
+your sword. Be careful not to fall in the water traps that lie around and 
+about. When you get to the room with the two statues, you can either hit one 
+of them with a horn to open the door, or you can kill them with your sword.
+   When you enter the boss room, 8 eyes will appear. They will slowly open 
+and close. To kill them, shoot each one twice with your rod while they are 
+wide open. Be careful- the eyes will occasionally use a thunder attack that 
+takes away 10 HP per hit. After you defeat the eyes, you will be transported 
+to another room. In this room, there are 3 big eyes. They shoot fireballs at 
+you. Each eye takes about 10 hits from your rod. Get up close and kill one 
+eye at a time. Gilga also uses something called "Stone Magic", but apparently 
+this is blocked by that Mirror Shield Kebabu gave to you. After you kill all 
+those stupid eyes, Chapter 1 is over ~_~
+
+   "I'm the Princess Ashelato. Thank you very much, Isfa. Please save my 
+father and my little sisters, too." [Lightning flashes]
+   "Ha,ha,ha- I am the great magician Sabaron. You defeated Gilga. I admire 
+you, kid. But you still have to fight many demons before me. You can 
+challenge me, but you will die. If you don't stay alert, your sweetheart the 
+Princess Scheherazade will fall victim to the demon. Ha,ha,ha..."
+
+   KEBABU: Where are we going next?
+   FARUK: Many fearful enemies are waiting for us.
+   CORONYA: There it is! The Desert World Alalart.
+
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=  B. Chapter 2: Desert World Alalart  -
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+                                _______________
+                     <---------{               }--------->
+                     <---------{  The Present  }--------->
+                     <---------{_______________}--------->
+
+     [P]
+      |
+     [ ]-[ ]
+          |
+         [W]                 [ ]-[ ]-[X]-[ ]-[ ]-[C]
+          |                   |   |   |   |   |   |
+         [ ]-[S]             [ ]-[R]-[ ]-[ ]-[ ] [ ]-[ ]
+              |               |   |   |   |   |   |   |
+             [3]             [ ]-[ ]-[ ]-[ ]-[ ] [ ]-[ ]
+                              |   |   |   |   |   |   |
+             [2]             [X]-[ ]-[ ]-[ ]-[F] [ ]-[ ]
+              |               |   |   |   |   |   |   |
+             [1]-[ ]-[ ]-[M]-[ ]-[X]-[ ]-[ ]-[ ] [ ]-[X]
+                                                  |   |
+                                                 [ ]-[X]
+                                                  |   |
+                                                 [ ]-[ ]
+                                                  |   |
+                                                 [ ]-[T]
+
+M: Town of Malart
+X: Watch out for falling rocks!
+R: Great Magic of Raincom
+F: Magic Field [use OPRIN]
+C: Town of Copanes
+T: Time Door [use OPRIN]
+1: Supica tells you to follow him here.
+2: The Maze Desert. Follow Supica to get to "3" (Right, Up, Up, Left, Left).
+3: End of the Maze Desert
+S: Town of Sudari
+W: Woman gives you 50 Rupias [use OPRIN]
+P: Dark Palace
+
+   The town of Malart is your starting location in this world. Go into town, 
+stock up on items, and talk to everyone. This would also be a good time to 
+get a password if you are playing on the NES. Your next stop will be the town 
+of Copanes, but you need to make a stop at the old man's place first and get 
+the magic of Raincom. You'll take damage in the desert, so use PAMPOO once in 
+a while. This is a good place to level up a few times, but don't waste your 
+time attacking the jumping scorpions- they take too long to kill (you have to 
+hit them multiple times before they go back underground). Focus on attacking 
+the other enemies you find around and about. Get to around level 7 before you 
+enter Copanes.
+
+          ++++++++++++++++
+          +TOWN OF MALART+
+          ++++++++++++++++
+      ______   ______
+     |      |-|Mosque|
+     |______|-|__  __|
+                 ||
+      ______   __||__
+     | Shop |-|      |
+     |__  __|-|______|
+        ||
+
+Shop:
+     Bread-        20 Rupias
+     Mashroob-     20 Rupias
+     Carpet-       20 Rupias
+     R. Seed-     100 Rupias
+
+   Enter Copanes, heal at the hotel, briefly speak to Gun Meca (you cannot 
+get him to join you yet), talk to Zainab (she is near the shop), and then 
+head out. Quickly go south to the time door and travel back in time 500 years.
+
+          +++++++++++++++++
+          +TOWN OF COPANES+
+          +++++++++++++++++
+      ______   ______
+     |G.MECA|-| Shop |
+     |__  __|-|______|
+        ||
+      __||__   ______
+     |      |-|Hotel |
+     |______|-|__  __|
+                 ||
+
+G.MECA: Gun Meca joins your party here.
+Hotel: 20 Rupias/night
+Shop:
+     Bread-        60/30 Rupias
+     Mashroob-     60/30 Rupias
+     Carpet-       60/30 Rupias
+     R. Seed-     100/50 Rupias
+                           _________________________
+                <---------{                         }--------->
+                <---------{  500 Years in the Past  }--------->
+                <---------{_________________________}--------->
+
+                     [S]
+                      |
+         [ ]-[A] [T]-[ ]
+          |   |   |
+         [ ] [ ] [ ]-[ ]
+          |   |       |
+         [ ] [ ]-[ ]-[ ]
+          |   |   |
+         [ ] [ ]-[ ]-[ ]
+          |   |       |
+     [M]-[ ] [ ] [ ]-[ ]
+      |   |   |   |
+     [ ]-[F] [ ]-[ ]
+
+T: Time Door [use OPRIN]
+S: Magic Star
+A: Town of Alart
+F: Magic Field [use OPRIN]
+M: Alalart Maze [use OPRIN]
+
+   Go north to the magic star and fill up your MP, then follow the map to get 
+to the magic field. It would be good to try to make it there before the solar 
+eclipse is over so you don't have to come back here later on. Plant a seed 
+and then backtrack to Alart. Buy a map at the shop, attend the classes at the 
+university, and then go to Lah's place. Coronya will mention something about 
+a translator. Talk to Lah (you obviously won't understand him), and then 
+leave town. Go back to the time door and travel forward through time.
+
+          +++++++++++++++
+          +TOWN OF ALART+
+          +++++++++++++++
+      ______   ______   ______
+     | Lah  |-|Hotel |-|Mosque|
+     |__  __|-|______|-|__  __|
+        ||                ||
+      __||__   ______   __||__
+     |      |-| Shop |-|  MU  |
+     |______|-|__  __|-|______|
+                 ||
+
+Lah: You can not understand Lah until you get Gun Meca.
+MU (Magic University) [use OPRIN]:
+     Admission Fee-  50 Rupias
+     Libra Course-   20 Rupias *Reward is the DRAGOON [Replaces SIMITAR]*
+     Raincom Course- 20 Rupias *Reward is the STARDUST [Replaces FLAME]*
+Hotel: 20 Rupias/night
+Shop:
+     Bread-        20 Rupias
+     Mashroob-     20 Rupias
+     Carpet-       20 Rupias
+     Map-          40 Rupias
+                                _______________
+                     <---------{               }--------->
+                     <---------{  The Present  }--------->
+                     <---------{_______________}--------->
+
+   Use a carpet to fly to Copanes and talk to Gun Meca. He'll join your party 
+now. While you're in the area, head down to the magic field and harvest the 
+Rupia tree. Again, max out your items, and then head back to the time door to 
+travel back in time once again. It's like you're walking with the dinosaurs!
+                           _________________________
+                <---------{                         }--------->
+                <---------{  500 Years in the Past  }--------->
+                <---------{_________________________}--------->
+
+   Now that you have Gun Meca, go back to Lah in Alart. Answer "NO" and he 
+will give you the Magic Boots and then tell you that Supica is locked up in 
+the maze. Go south and use OPRIN to enter the Alalart Maze. Go up one screen. 
+From here, follow the path until you get to the lower area of the "1" screen. 
+There will be a big path heading up. This path is filled with many invisible 
+holes. Get on the right side of the path, walk up, and stop when you are 
+about two-thirds of the way up the screen (you should be lined up with the 
+paths on the left and right side of the screen). Now walk over to the left 
+wall and walk up to screen "2". This screen has holes in the exact same 
+places, so do the same thing as before. Hug the right wall, walk up to where 
+the second set of paths leave the screen, walk over to the left wall, and go 
+up. Once you get past these two screens, follow the path on the map to 
+Supica. Fly back to Alart and then head back to the present.
+
+          ##############
+          #ALALART MAZE#
+          ##############
+
+                  S
+                  |
+         [ ]-[ ]-[ ]
+          |   |   |
+     [ ]-[E]-[2]-[ ]
+          |   |   |
+         [ ]-[1]-[ ]
+                  |
+             [X] [ ]
+
+E: Entrance and Exit
+1: Invisible holes
+2: Invisible holes
+X: Exit if you fall in a hole
+S: Supica joins your party here.
+                                _______________
+                     <---------{               }--------->
+                     <---------{  The Present  }--------->
+                     <---------{_______________}--------->
+
+   Take a magic carpet ride to Malart, change your class to Magician at the 
+mosque, and then head west. Supica will lead you through the Maze Desert. 
+Follow him until you reach the town of Sudari. Yes, this is a huge city- 
+every RPG always has one of these. Buy lots troopers and go shopping, and 
+then stay a night at the hotel before you leave. It is time to go to the Dark 
+Palace.
+
+          ++++++++++++++++
+          +TOWN OF SUDARI+
+          ++++++++++++++++
+      ______   ______
+     |Shop#2|-|Casino|
+     |______|-|__  __|
+                 ||
+      ______   __||__
+     |______|=|Stair2|
+     |__  __| |______|
+        ||  
+      __||__   ______
+     |Stair1|-|Hotel |
+     |__  __|-|__  __|
+        ||       ||
+      __||__   __||__
+     |Troops|-|Shop#1|
+     |__  __|-|______|
+        ||
+
+Troops: [use OPRIN]
+Stair1: To "Stair2" [use OPRIN]
+Stair2: To "Stair1"
+Hotel: 30 Rupias/night
+Shop#1 [use OPRIN]:
+     Bread-        60/30 Rupias
+     Mashroob-     60/30 Rupias
+     Carpet-       60/30 Rupias
+     R. Seed-     100/50 Rupias
+Shop#2:
+     Bread-        20/10 Rupias
+     Mashroob-     20/10 Rupias
+     Key-          40/20 Rupias
+     Horn-         40/20 Rupias
+
+          #############
+          #DARK PALACE#
+          #############
+
+Boss: Curly
+Prisoner: Princess Ishutal
+
+     [ ]-[ ]-[ ]  B
+      |       |   |
+      E  [ ]-[ ] [ ] [P]
+          |       |   |
+         [ ]-[ ] [H] [ ]-[ ]
+              |   |       |
+             [ ] [1]-[ ]-[ ]
+              |   |
+             [ ]-[ ]
+
+E: Entrance
+H: Use a horn against one of the three statues.
+P: Epin joins your party here. You need him to beat Curly. [use OPRIN]
+B: Boss
+
+   You'll notice some lava on the floor when you enter the palace. This will 
+hurt you- jump over it. Follow the path until you get to "1". Turn right here 
+and go to "P". Use OPRIN and get Epin. Now go back to "1" and take the path 
+up. At "H", there are three statues. Hit one of them with a horn. If they 
+wake up, kill them with your sword.
+   When you enter Curly's room, there will be a red statue in front of you. 
+Use FLAMOL1 about 8 times and she will die. Curly might use Star Magic in 
+between your attacks, but it just hurts you a little bit. When this part is 
+over, Epin will summon Curly's second form with his whistle. There are 6 arms 
+and you must shoot each one about 5 times with your rod to kill it. Curly 
+will occasionally use Restoration to heal her arms, so you need to be quick. 
+This part is very hard if you aren't a Magician because your rod is very slow 
+and Curly moves very fast. If you have plenty of Mashroob, you could use 
+FLAMOL1 to kill her arms. When you finally beat those damn arms (or you go 
+insane), Chapter 2 is over >_<
+
+   "I'm the Princess Ishutal. Thank you very much, Isfa. Please save my 
+father and my little sisters."
+
+   GUN MECA: Hey! Let's hurry up!
+   SUPICA: Hah, hah! I'm faster.
+   KEBABU: Could you be a little more quiet?
+   FARUK: Well, don't say so.
+   EPIN: Take it easy. It's a little rest before the fight.
+   CORONYA: Isfa, the next place is Samalkand.
+
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=  C. Chapter 3: Forest World Samalkand  -
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+                                _______________
+                     <---------{               }--------->
+                     <---------{  The Present  }--------->
+                     <---------{_______________}--------->
+
+                 [ ]-[ ]-[ ]-[ ]-[K]
+                  |   |   |   |   |
+         [ ]-[C]-[ ]-[ ] [ ] [ ]-[ ]
+          |   |           |       |
+     [M]-[ ] [X]-[ ]-[ ] [ ]-[ ]-[ ]
+                  |   |       |
+     [L]     [P] [ ]-[T]     [ ]
+      |       |               |
+     [ ]-[F]-[ ] [S] [ ]-[ ]-[ ]
+          |       |   |
+         [Z]     [ ]-[ ]
+                  |
+                 [ ]     [ ]-[ ]
+                  |       |   |
+                 [ ]-[ ]-[ ] [ ]
+                              |
+                 [W]     [ ]-[ ]
+                  |       |   |
+                 [ ]-[ ]-[ ]-[ ]
+                  |
+                 [ ]-[N]
+
+N: Town of Nubia
+W: Woman gives you 50 Rupias [use OPRIN]
+S: Magic Star
+K: Town of Kasimeel
+C: Cimaron tree [use OPRIN]
+X: Watch out for falling logs!
+T: Time Door [use OPRIN]
+M: Maze Entrance [use OPRIN]
+Z: Maze Exit [use OPRIN]
+F: Magic Field [use OPRIN]
+P: Town of Passora
+L: Frozen Palace
+
+   Oh boy, another useless town. Talk to everyone in Nubia and then leave. 
+Don't bother going to the shop- the prices are way too high. And you already 
+have full health, right?
+
+          +++++++++++++++++++++++++
+          +TOWN OF NUBIA (Present)+
+          +++++++++++++++++++++++++
+      ______   ______
+     | Shop |-|      |
+     |__  __|-|______|
+        ||
+      __||__   ______
+     |      |-|Hotel |
+     |__  __|-|______|
+        ||
+
+Hotel: 25 Rupias/night
+Shop:
+     Bread-        60 Rupias
+     Mashroob-     60 Rupias
+     Carpet-       60 Rupias
+     R. Seed-     100 Rupias
+
+   Journey northward to Kasimeel (pick up the 50 Rupias on the way). Take all 
+the university courses and get the Red Armor. This doubles your defense! Heal 
+at the hotel and talk to the man who calls himself Mohammed. Max out your 
+items at the shop and then go to the mosque and change your class to Saint. 
+This is important. Now leave town and visit the Cimaron Tree. He'll tell you 
+some stuff, but don't worry- I've got it covered. Once you are done here, 
+make your way to the time door.
+
+          ++++++++++++++++++++++++++++
+          +TOWN OF KASIMEEL (Present)+
+          ++++++++++++++++++++++++++++
+      ______   ______
+     | Shop |-|Mosque|
+     |__  __|-|______|
+        ||
+      __||__   ______
+     |  MU  |-|Hotel |
+     |__  __|-|______|
+        ||
+
+MU (Magic University) [use OPRIN]:
+     Admission Fee-  80 Rupias
+     Aries Course-   30 Rupias 
+     Sirius Course-  30 Rupias
+     Spricom Course- 20 Rupias *Reward is the R.ARMOR*
+Hotel: 25 Rupias/night
+Shop:
+     Bread-        20 Rupias
+     Mashroob-     20 Rupias
+     Carpet-       20 Rupias
+     R. Seed-     100 Rupias
+                          __________________________
+               <---------{                          }--------->
+               <---------{  30 Years in the Future  }--------->
+               <---------{__________________________}--------->
+
+     [ ]-[ ]-[ ]-[F]-[K]
+      |   |   |   |   |
+     [C]-[ ] [ ] [ ]-[ ]
+      |       |       |
+     [ ]-[ ] [ ]-[ ]-[ ]
+      |   |       |
+     [ ]-[T]     [ ]
+                  |
+     [ ] [ ]-[ ]-[ ]
+      |   |
+     [ ]-[ ]
+      |
+     [ ]     [ ]-[ ]
+      |       |   |
+     [ ]-[ ]-[ ] [ ]
+                  |
+     [S]     [ ]-[ ]
+      |       |   |
+     [ ]-[ ]-[ ]-[ ]
+      |
+     [ ]-[N]
+
+T: Time Door [use OPRIN]
+C: Cimaron tree [use OPRIN]
+F: Magic Field [use OPRIN]
+K: Town of Kasimeel
+S: Great Magic of Spricom [use OPRIN]
+N: Town of Nubia
+
+   Ahh yes, Samalkand is now a winter wonderland. Unfortunately, staying out 
+in the snow causes you to lose HP, just like the desert. Go talk to the 
+Cimaron tree and answer "NO" to his first question. Enter the 
+password "CHOCOLA". The Cimaron tree will then give you the CIMARON [Replaces 
+STARDUST] and he'll also give you the Cimaron fruit. Go over to Kasimeel and 
+change your class back to Magician.
+
+          +++++++++++++++++++++++++++
+          +TOWN OF KASIMEEL (Future)+
+          +++++++++++++++++++++++++++
+      ______   ______
+     | Shop |-|Mosque|
+     |__  __|-|______|
+        ||
+      __||__   ______
+     |      |-|Hotel |
+     |__  __|-|______|
+        ||
+
+Hotel: 25 Rupias/night
+Shop:
+     Bread-        20/10 Rupias
+     Mashroob-     20/10 Rupias
+     Carpet-       20/10 Rupias
+     R. Seed-     100/50 Rupias
+
+   Leave Kasimeel and head south to Nubia. On the way, get the magic of 
+Spricom from the old man. In Nubia, buy a map and some troopers if you have 
+any money. Go talk to Supapa and he'll exchange the Cimaron fruit for your 
+new ally, Pukin. We're done here. Fly back to Kasimeel and head back in time 
+through the time door.
+
+          ++++++++++++++++++++++++
+          +TOWN OF NUBIA (Future)+
+          ++++++++++++++++++++++++
+      ______   ______
+     |Supapa|-|Casino|
+     |__  __|-|______|
+        ||
+      __||__   ______
+     |Troops|-| Shop |
+     |______|-|__  __|
+                 ||
+
+Shop:
+     Bread-        20 Rupias
+     Mashroob-     20 Rupias
+     Carpet-       20 Rupias
+     Map-          40 Rupias
+                                _______________
+                     <---------{               }--------->
+                     <---------{  The Present  }--------->
+                     <---------{_______________}--------->
+
+   Make your way to the entrance of the Samalkand Maze and open it with 
+OPRIN. At the entrance, take the path to the right. Follow this path until 
+you get to "H". Stay on the left side of the path to avoid falling in the 
+holes and keep going up. Continue following this path until you get to "K". 
+This is where you get the KASHIM. Now go back to "H" and take the path to the 
+right. Follow this path until you get to the exit.
+
+          ################
+          #SAMALKAND MAZE#
+          ################
+
+             [X] [ ]-[Z]
+                  |   |
+      K      [ ]-[H]-[ ]-[ ]
+      |       |   |   |
+     [ ] [ ]-[ ]-[ ] [ ]
+      |   |   |
+     [ ]-[ ] [E]
+
+E: Entrance from Kasimeel side of maze
+H: Invisible holes
+X: Exit if you fall in a hole
+Z: Exit to Passora side of maze
+K: KASHIM [Replaces DRAGOON]
+
+   Before you buy anything in Passora, go to Mustafa and pay him 100 Rupias 
+to join your party. Now go spend whatever money you have left at the shop and 
+hotel. It's time to go to the Frozen Palace.
+
+          +++++++++++++++++
+          +TOWN OF PASSORA+
+          +++++++++++++++++
+      ______   ______
+     |MUSTAF|-|Hotel |
+     |__  __|-|______|
+        ||
+      __||__   ______
+     |      |-| Shop |
+     |______|-|__  __|
+                 ||
+
+MUSTAF: Mustafa joins your party here.
+Hotel: 40 Rupias/night
+Shop:
+     Carpet-       20/10 Rupias
+     Key-          40/20 Rupias
+     Horn-         40/20 Rupias
+     Amulet-       40/20 Rupias
+
+          ###############
+          #FROZEN PALACE#
+          ###############
+
+Boss: Winter Demon Troll
+Prisoner: Princess Roxanne
+
+     [ ]-[ ] [1]
+      |   |   |
+     [H] [ ]-[D]
+      |       |
+     [ ]-[ ] [D]-[ ]     [ ]-[M]-[ ]
+          |       |       |       |
+         [ ]-[C]-[D]     [D]  B  [ ]
+          |       |       |   |   |
+         [ ] [S]-[ ]     [2] [ ]-[W]
+          |
+          E
+
+E: Entrance
+H: Use a horn against one of the four statues.
+C: Changarl (Going left to right)
+D: Dragon enemy
+S: Shop [use OPRIN]:
+     Bread-        60/30 Rupias
+     Mashroob-     60/30 Rupias
+     Carpet-       60/30 Rupias
+     R.Seed-      100/50 Rupias
+1: Stairs to "2"
+2: Stairs to "1"
+M: Mardul (Going left to right)
+W: There is a water trap right when you enter the room. Don't fall in.
+B: Boss
+
+   I recommend that you change your class to Magician (fly back to Kasimeel) 
+before you enter this palace. The floor in this palace is very slippery. Be 
+careful not to slide into the water. Also, you will meet the first mini-
+bosses, Changarl and Mardul, in this palace. If they transform you, stay away 
+from the other enemies in the room, or you will be eaten and lose a life. 
+Yum! When you are in a "dragon" room, you must kill the dragon to unlock the 
+door. Choose a path (either one is good) and work your way over to "1". The 
+second half of the palace is fairly straightforward, so just keep going until 
+you get to the boss.
+   When you get to the boss room, Mustafa will make the Demon Troll appear. 
+Stand in front of the middle troll and keep shooting. Each time you hit him, 
+the Troll will use Thunder and you will lose 10 HP. After about 8 hits, you 
+will fight the next form of the Troll. Quickly shoot him with your rod. If he 
+uses Shrink and you don't have any amulets, you must attack him with magic. 
+If you don't have any Mashroob and you run out of magic, you must use the 
+Ring to escape (or just reset the game). After you kill this relatively easy 
+boss, Chapter 3 is over o_O
+
+   "I'm the Princess Roxanne. Isfa, please find my father and Scheherazade 
+and save them. Remember, Scheherazade is waiting for you all the time."
+
+   PUKIN: Oh, this is the beginning of a new adventure.
+   MUSTAFA: I need 100 more Rupias.
+   KEBABU: Oh, boy! You always talk about money. Stop it!
+   SUPICA: You always make a big deal out of everything.
+   GUN MECA: Maybe she can talk Sabaron to death.
+   FARUK: They say Sabaron is in the next world.
+   EPIN: Yes.
+   CORONYA: Brace yourself!
+
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=  D. Chapter 4: Flower World Celestern  -
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+                                _______________
+                     <---------{               }--------->
+                     <---------{  The Present  }--------->
+                     <---------{_______________}--------->
+
+             [ ]-[ ]-[ ]-[ ]-[ ]-[ ]
+              |                   |
+             [ ]             [ ]-[ ]
+              |               |
+             [D]         [P] [ ]-[ ]-[ ]
+              |           |           |
+     [ ]-[ ]-[ ]-[ ] [ ]-[ ]         [ ]-[Y]
+      |           |   |
+     [ ] [ ]-[ ] [ ] [ ]-[ ]
+      |   |   |   |       |
+     [ ] [W]-[ ]-[ ]-[F]-[ ]
+      |           |
+     [ ]-[ ]-[ ]-[ ]-[ ]-[ ]
+              |
+             [ ]-[D]-[C]-[X]-[ ]-[X]-[X]
+                                  |   |
+                             [T]-[ ]-[ ]
+                                      |
+                                 [L]-[ ]
+
+Y: Town of Yufla
+D: Beginning of the Desert
+W: Woman gives you 50 Rupias [use OPRIN]
+F: Magic Field (also the beginning of the Desert)
+P: Town of Pao
+C: Town of Chigris
+X: Watch out for falling rocks!
+L: Yufla Palace
+T: Time Door [use OPRIN]
+
+   You're still a Magician, right? Good, you should stay that way for a 
+while. It is the best class for what you will be encountering. Enter Yufla 
+and do what you need to do, then leave and head for the desert. Go east at 
+the first fork and then west at the crossroads. Go around the north side of 
+the water and get the 50 Rupias from the woman. Head east from here and take 
+the path to the town of Pao. On the way, I recommend that you gain a couple 
+of levels by killing the trees around this area.
+
+          +++++++++++++++
+          +TOWN OF YUFLA+
+          +++++++++++++++
+      ______   ______
+     |Casino|-|Hotel |
+     |______|-|__  __|
+                 ||
+      ______   __||__
+     | Shop |-|Troops|
+     |__  __|-|______|
+        ||
+
+Troops: [use OPRIN]
+Hotel: 30 Rupias/night
+Shop:
+     Bread-        60/30 Rupias
+     Mashroob-     60/30 Rupias
+     Carpet-       60/30 Rupias
+     R. Seed-     100/50 Rupias
+
+   Your first stop in Pao should be the university (the rod upgrade here is 
+awesome). If you have any money left, go shopping. This shop has got some 
+stuff that you will rarely find in most shops. Once you're done, look at the 
+map and find your way to Chigris.
+
+          +++++++++++++
+          +TOWN OF PAO+
+          +++++++++++++
+      ______   ______
+     |  MU  |-| Shop |
+     |______|-|__  __|
+                 ||
+
+MU (Magic University):
+     Admission Fee- 100 Rupias
+     Kaitos Course-  40 Rupias 
+     Moscom Course-  20 Rupias *Reward is the CRYSTAL [Replaces CIMARON]*
+Shop:
+     Carpet-       20 Rupias
+     Key-          40 Rupias
+     Horn-         40 Rupias
+     Amulet-       40 Rupias
+
+   Get used to the lava- you'll be seeing more of it later on. Get the map at 
+the shop in Chigris. Talk to the people here and you will find out that 
+Gubibi has been taken to the palace. This should be your next stop.
+
+          +++++++++++++++++
+          +TOWN OF CHIGRIS+
+          +++++++++++++++++
+      ______   ______
+     |Mosque|-| Shop |
+     |__  __|-|______|
+        ||
+      __||__   ______
+     |      |-|Hotel |
+     |______|-|__  __|
+                 ||
+
+Hotel: 40 Rupias/night
+Shop:
+     Bread-        20 Rupias
+     Mashroob-     20 Rupias
+     Carpet-       20 Rupias
+     Map-          40 Rupias
+
+   You have one thing to do in this palace- get Gubibi. Go up one screen from 
+the entrance, use OPRIN, get Gubibi (he gives you the Holy Robe- this lets 
+you get to the Town of Lava later in this world), and get out. Don't worry 
+about the Fire Field- you don't need to go there. Once you are out of the 
+palace, head up and around to the time door. Be careful not to fall in the 
+lava.
+
+          ########################
+          #YUFLA PALACE (Present)#
+          ########################
+
+          F
+          |
+         [ ]
+          |
+     [G] [H]
+      |   |
+     [ ]-[ ]
+      |   |
+      E  [ ]
+
+E: Entrance
+G: Gubibi joins your party here. [use OPRIN]
+F: The Fire Field. If you enter it, you have to use the Ring to escape.
+H: Use a horn against one of the five statues.
+                          __________________________
+               <---------{                          }--------->
+               <---------{  3000 Years in the Past  }--------->
+               <---------{__________________________}--------->
+
+         [ ]-[ ]-[ ]     [S]
+          |   |   |       |
+     [A] [ ] [ ]-[ ]-[ ]-[ ]     [P]
+      |   |   |   |   |   |       |
+     [ ]-[ ]-[ ]-[ ]-[ ]-[ ]-[ ]-[ ]
+              |   |   |
+     [O]-[ ]-[ ]-[ ]-[ ]-[ ]
+              |   |   |   |
+     [C]     [ ]-[ ]-[ ]-[ ]
+                  |   |   |
+     [1]-[2]-[L] [M]-[ ]-[ ]
+                      |   |
+             [ ]-[ ]-[ ]-[ ]
+              |
+             [ ]
+              |
+             [ ]-[X]-[ ]-[F]
+
+F: Town of Farvil
+F: Time Door [use OPRIN]
+X: Watch out for falling logs!
+M: Magic Field [use OPRIN]
+O: No one is here... [use OPRIN]
+A: Go 1E to get to "C".
+C: Lava Cape: Jump into the lava to warp to "1". Go 1W to get to "A".
+1: Lava
+2: Lava
+L: Town of Lava
+S: Magic Star
+P: Yufla Palace
+
+   Heh heh. The people in this town are fairies! But don't worry- you can 
+still understand them. Talk to all the fairies (notice that one of them says 
+a line that is later repeated by Navi the fairy in The Legend of Zelda: 
+Ocarina of Time- I like to believe that this was not a coincidence). Before 
+you leave, make sure you change your class to Fighter. This is important!
+
+          ++++++++++++++++
+          +TOWN OF FARVIL+
+          ++++++++++++++++
+      ______   ______
+     |Mosque|-|      |
+     |__  __|-|__  __|
+        ||       ||
+      __||__   __||__
+     |      | |      |
+     |__  __| |______|
+        ||
+      __||__   ______
+     |      |-| Shop |
+     |______|-|__  __|
+                 ||
+
+Shop:
+     Bread-        20/10 Rupias
+     Mashroob-     20/10 Rupias
+     Carpet-       20/10 Rupias
+     R.Seed-      100/50 Rupias
+
+   Our next stop is the Town of Lava. From Farvil, go 3W, 2N, 2E, 2N, 2W, 2N, 
+2W, 1N, and 1E. Now since you have the Holy Robe, you can jump in the lava. 
+Swim over to the town and head to Rainy's house. You must be a Fighter. He'll 
+ask you two questions, and you must answer "NO" to both of them. If you 
+answer "YES", the game ends. Now Rainy will join you. Do not use Rainy in any 
+battles- he needs as much MP as possible to defeat Salamander.
+
+          ++++++++++++++
+          +TOWN OF LAVA+
+          ++++++++++++++
+      ______   ______   ______
+     |      |-|      |-|RAINY |
+     |__  __|-|__  __|-|______|
+        ||       ||
+               __||__   ______
+              |Stairs|-|      |
+              |______|-|______|
+
+RAINY: Rainy joins your party here.
+Stairs: Warps you back to the Lava Cape.
+
+   Fly back to Farvil and change you class back to Magician. While you are 
+here, max out your bread and mashroob supply. Fly back to Lava and take the 
+stairs to the Lava Cape. Go 1W, 1S, 1E, and 1N. Cross the bridge and follow 
+the path to Yufla Palace. Before you go in, you should at least be to level 
+18.
+
+          #####################
+          #YUFLA PALACE (Past)#
+          #####################
+
+Boss: Fire Demon Salamander
+Prisoner: King Feisal
+
+                     [ ]-[ ]  M   B
+                          |   |   |
+                     [ ]-[D] [L] [ ]
+                      |   |   |   |
+                     [ ] [ ]-[D] [I]
+                      |   |       |
+     [ ]-[ ]-[1]     [4] [ ]-[Z]-[D]
+      |   |   |
+     [W] [ ]-[ ]
+      |   |   |
+     [ ] [H] [ ]     [R]-[ ]-[2]
+      |   |           |   |   |
+     [ ]-[ ]         [ ]-[S]-[ ]
+      |               |   |   |
+     [ ]             [3]-[ ]-[ ]
+      |
+      E
+
+E: Entrance
+W: Warhammer (Going bottom to top)
+H: Use a horn against one of the five statues.
+R: ROSTAM [Replaces KASHIM] [use OPRIN]
+S: Shop [use OPRIN]:
+     Bread-        60 Rupias
+     Mashroob-     60 Rupias
+     Carpet-       60 Rupias
+     R.Seed-      100 Rupias
+D: Dragon enemy
+Z: Barzil (Going left to right)
+I: Barzil (Going bottom to top)
+L: The northern door of this room is locked. You need a key to pass.
+M: Great Magic of Moscom
+1: Stairs to "2"
+2: Stairs to "1"
+3: Stairs to "4"
+4: Stairs to "3"
+B: Boss
+
+   There are two paths you can choose when you enter the palace- just like in 
+Chapter 3- so pick either one you want. Take the stairs at "1" to get to "2". 
+There is a shop in this area, but please be very careful when you exit the 
+shop- the game places you right next to the lava. Go 2S, 2W, and 2N. Use 
+OPRIN and get the sword upgrade. Now go 2E, 2S, 2W, and take the stairs 
+at "3" to get to "4". Follow the path on the map and pick up the magic of 
+Moscom, then backtrack and head to the boss. If you are using an emulator, 
+save state before you go in. If you are playing on the NES, cross your 
+fingers and do your best.
+   Reach level 19 before you even attempt to fight the boss (and you 
+absolutely must be a Magician). Make sure you have full bread, mashroobs, 
+etc. Once you get to Salamander, stand in the center and mash the B button 
+like crazy. If he slows down, move over to the area he is at and shoot his 
+nose. After a certain period of time, he will go back into the fire to 
+partially heal, so Rainy will have to draw him out again. Now repeat this 
+whole process a couple more times. Unfortunately, Rainy will eventually run 
+out of MP, so he can only draw Salamander out of the fire field a limited 
+number of times. After you (hopefully) beat Salamander, who is by far the 
+hardest boss in the game, Chapter 4 is over @_@
+
+   "I am the King Feisal. Isfa, how can I thank you. I've been locked up by 
+Sabaron in such a place. Let's go back to the present time. Your sweetheart 
+the Princess Scheherazade must be with Sabaron. This will be the last battle."
+
+   FARUK: Now, let's return to the present Celestern!
+   MUSTAFA: Hey, I should have gotten 100 more Rupias.
+   KEBABU: Mustafa! I said stop it!
+   SUPICA: Whoopee!
+   EPIN: Hey! Don't fool around.
+   GUN MECA: That's right. This will be the decisive battle.
+   PUKIN: I'm trembling with excitement, sir.
+   RAINY: I'm not afraid. I'm not afraid.
+   GUBIBI: It's all right, Rainy.
+   CORONYA: This will be the last battle, Isfa!!
+
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+=  E. Chapter 5: Evil Magician Sabaron  =
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+                                _______________
+                     <---------{               }--------->
+                     <---------{  The Present  }--------->
+                     <---------{_______________}--------->
+
+         [ ]-[ ]-[ ]
+          |       |
+         [ ]     [ ]-[ ]-[Y]
+          |
+         [ ]         [P]
+          |           |
+     [ ]-[ ]-[ ] [ ]-[ ]
+      |   |       |
+     [ ]-[ ]-[ ]-[ ]
+      |   |   |
+     [ ]-[T]-[ ]
+      |
+     [ ]-[ ]
+          |
+         [ ]-[C]-[ ]-[ ]-[ ]-[ ]
+                          |   |
+                     [L]-[ ]-[ ]
+                              |
+                         [F]-[ ]
+
+Y: Town of Yufla
+P: Town of Pao
+T: Troopers [use OPRIN]
+C: Town of Chigris
+L: Great Magic of Libcom [use OPRIN]
+F: Fire Palace
+
+   It's déjà vu all over again- this is the land of Celestern without the 
+effects of Salamander. And, it is the last and final world of the game. Enter 
+Yufla and fill up your bread supply at the shop. Go to the casino and make 
+some money, and then talk to the mayor (he is standing outside Hassan's 
+place). Now go into the door and Hassan will join your party. He is the last 
+ally you will find in the game. Leave Yufla and head to Pao.
+
+          +++++++++++++++
+          +TOWN OF YUFLA+
+          +++++++++++++++
+      ______   ______
+     |HASSAN|-|Hotel |
+     |______|-|__  __|
+                 ||  
+      ______   __||__
+     | Shop |-|Casino|
+     |__  __|-|______|
+        ||
+
+HASSAN: Hassan joins your party here.
+Casino: [use OPRIN]
+Hotel: 30 Rupias/night
+Shop:
+     Bread-        20/10 Rupias
+     Mashroob-     20/10 Rupias
+     Carpet-       20/10 Rupias
+     R. Seed-     100/50 Rupias
+
+   You should have used a key or two in Yufla Palace, so pick up some at the 
+shop in Pao. Go talk to Kaji and he'll tell you to bring him the LEGEND 
+sword, and he'll give you the Armor of Light. The Armor of Light is needed to 
+defeat Sabaron, so you'll have to agree to his demands. The next town is 
+Chigris, but on your way there, buy plenty of troopers (located at "T" on the 
+map).
+
+          +++++++++++++
+          +TOWN OF PAO+
+          +++++++++++++
+      ______   ______
+     | Kaji |-| Shop |
+     |______|-|__  __|
+                 ||
+
+Shop:
+     Carpet-       20/10 Rupias
+     Key-          40/20 Rupias
+     Horn-         40/20 Rupias
+     Amulet-       40/20 Rupias
+
+   This is the last town in the game. So sad, isn't it? There are tons of 
+people here, so talk to everybody. Buy a map at the shop and stay a night at 
+the hotel, and then you can leave. Travel east and get the magic of Libcom 
+from the old man, and then go to the Fire Palace.
+
+          +++++++++++++++++
+          +TOWN OF CHIGRIS+
+          +++++++++++++++++
+      ______   ______
+     |Mosque|-| Shop |
+     |__  __|-|______|
+        ||
+      __||__   ______
+     |      |-|Hotel |
+     |______|-|__  __|
+                 ||
+      ______   __||__
+     |      |-|      |
+     |______|-|__  __|
+                 ||
+
+Hotel: 40 Rupias/night
+Shop:
+     Bread-        20 Rupias
+     Mashroob-     20 Rupias
+     Carpet-       20 Rupias
+     Map-          40 Rupias
+
+   There isn't much to do in the Fire Palace. Oh well. Fight through the 
+three dragons and enter the Fire Maze by using OPRIN.
+
+          #############
+          #FIRE PALACE#
+          #############
+
+         [M]
+          |
+         [D]
+          |
+     [ ] [D]
+      |   |
+     [ ]-[D]
+      |   |
+      E  [ ]
+
+E: Entrance
+D: Dragon enemy
+M: Maze [use OPRIN]
+
+   From the entrance of the maze, go 2E and 2N and take the stairs at "2" to 
+get to "6". Go down one screen and take the stairs at "5" to get to "1". Go 
+down one screen and take the path on the right (it goes up). Continue on this 
+path and you will eventually get to the Magic University, the locked Sabaron 
+door, and the time door. Enter the time door and go back in time 3000 years 
+to the Light Palace.
+
+          ###########
+          #FIRE MAZE#
+          ###########
+
+         [7]-[6]
+          |   |
+         [8] [5]
+
+                  P   M
+                  |   |
+         [T]     [ ] [ ]
+          |       |   |
+     [3]-[H]-[ ]-[2]-[1]-[ ]
+          |       |   |
+     [S]-[ ] [ ]-[ ]-[ ]
+      |   |   |   |
+     [4] [E]-[ ]-[ ] [X]
+
+E: Entrance
+1: Stairs to "5"
+2: Stairs to "6"
+3: Stairs to "7"
+4: Stairs to "8"
+5: Stairs to "1"
+6: Stairs to "2"
+7: Stairs to "3"
+8: Stairs to "4"
+M: Magic University:
+     Admission Fee- 100 Rupias
+     Dragon Course-  50 Rupias
+     Libcom Course-  20 Rupias
+T: Time Door [use OPRIN]
+S: Shop [northern exit of room]:
+     Bread-        60 Rupias
+     Mashroob-     60 Rupias
+     Carpet-       60 Rupias
+     R. Seed-     100 Rupias
+H: Invisible holes
+X: Exit if you fall in a hole
+P: Sabaron's Palace (you must have the Light Armor to enter)
+                          __________________________
+               <---------{                          }--------->
+               <---------{  3000 Years in the Past  }--------->
+               <---------{__________________________}--------->
+
+   This palace looks very complex, but it is quite simple if you have a map 
+in front of you (which you do). Explore the area and level up a few times if 
+you want to. Gradually make your way over to "J". When you get to this 
+screen, you can walk through part of the wall on the bottom-left side of the 
+barrier. Once you pass through the wall, you can explore the rest of the 
+palace. Get down to "L", unlock the door, and then go north two screens and 
+get the LEGEND sword from Isfa. Go back to the time door and travel forward 
+in time.
+
+          ##############
+          #LIGHT PALACE#
+          ##############
+
+         [ ]-[ ]
+          |   |
+     [ ]-[ ]-[ ]-[ ]
+      |   |   |   |
+     [D]-[ ]-[ ]-[J]-[ ]-[ ]-[ ]
+      |   |   |   |   |       |
+     [ ]-[ ] [ ]-[ ]-[ ] [I] [D]
+      |   |       |   |   |   |
+     [T] [ ]-[M]-[ ] [ ]-[L]-[ ]
+
+T: Time Door [use OPRIN]
+D: Dragon enemy
+M: Old man says, "There is only one jar that you can go through." [use OPRIN]
+J: You can walk through one of the jars here.
+L: The northern door of this room is locked. You need a key to pass.
+I: Enter the north door of this room to get the LEGEND [Replaces ROSTAM]
+                                _______________
+                     <---------{               }--------->
+                     <---------{  The Present  }--------->
+                     <---------{_______________}--------->
+
+   Fly or walk back to Pao and talk to Kaji again. Leave the town and go one 
+screen south. Stand between the two trees and a bridge will appear. Cross the 
+bridge, use OPRIN, and get the Light Armor. Before you continue, you should 
+max out all of your items, buy plenty of troopers, and level up to 24 or 25. 
+The best level-up spot is just a bit northwest of Chigris. A blue demon 
+almost always spawns here, and with a few shots from the rod, he can be taken 
+out. Repeat this a couple hundred times until you are satisfied with your 
+level. Now head back to the Fire Maze and follow the same directions as 
+before, but this time, you will be stopping at the door to Sabaron's Palace. 
+When you are ready, go inside.
+
+          ##################
+          #SABARON'S PALACE#
+          ##################
+
+Boss: Goragora
+Prisoner: Princess Scheherazade
+
+          I
+          |
+         [L] [ ]-[M]-[ ]
+          |   |       |
+         [D]-[ ]-[R]-[D]  W
+          |   |       |   |
+     [G]-[ ]-[ ]-[C]-[ ]-[L]
+          |   |       |   |
+         [ ] [ ]-[ ]-[ ]-[ ]
+          |   |   |   |   |
+      B  [D] [S]-[ ] [D] [ ]
+      |   |       |   |   |
+     [ ]-[ ]-[ ]-[ ]-[ ]-[ ]
+          |   |   |   |
+         [ ] [ ]-[ ]-[ ]
+          |       |   |
+         [ ]-[Z]-[ ] [D]
+                      |
+                      E
+
+E: Entrance
+D: Dragon enemy
+S: Shop [use OPRIN]:
+     Bread-        20/10 Rupias
+     Mashroob-     20/10 Rupias
+     Carpet-       20/10 Rupias
+     R.Seed-      100/50 Rupias
+C: Changarl (Going right to left)
+L: The northern door of this room is locked. You need a key to pass.
+W: Woman gives you 50 Rupias
+M: Mardul (Going right to left)
+I: Sabaron gives you the ISFA [Replaces CRYSTAL]
+G: Magic Star
+R: Warhammer (left to right)
+Z: Barzil (Going right to left)
+B: Boss
+
+   From the first dragon room, go 2N, 1E, and 3N. Unlock the door and get the 
+50 Rupias. Go 1W, 2N, and 1W. Fight Mardul and then go 1W. From here, go 1S, 
+1W, 1N, unlock the door, and talk to Sabaron. Enter the name "CORONYA" and he 
+will give you the ISFA rod. Go 2S, 1W, and fill up your MP and HP at the 
+magic star. Go 1E, 1N, 1E, 1N, 1E, 1S, 1W, 1S, 1W, 3S, 1E, 1S, 1E, 1S, 1W, 
+and fight Barzil. You're almost there. Go 1W, 2N, 1W, and enter the door.
+   This part of the boss room is a maze.  Go up, right, up, left, and then 
+keep going up until you get to the pillar room. Listen to Scheherazade's 
+message, and then stand on the red moon. Shoot the pillar wall with your rod 
+(listen for a beep), and then stand on the white sun. Shoot the pillar wall 
+again (and again, listen for a beep). Now go stand on the star that appears 
+in the center of the room and shoot the wall when the star turns blue. The 
+room will blow up, and then you'll be in a fire field for a few seconds. 
+While you're here, make sure you equip ISFA and BOLTTOR3.
+   When Goragora appears, immediately use BOLTTOR3 and keep using it until 
+he "dies" (it will take about 5 hits of the magic). Now two things will start 
+spinning around the room. Shoot the dark one with your rod. Goragora will 
+reappear after some time has passed, so you'll need to do the BOLTTOR3 thing 
+again. Keep attacking the dark spinning thing until it dies. Congratulations! 
+You have finally beaten The Magic of Scheherazade ^_^
+
+   SCHEHERAZADE: Thank you, Isfa. You have defeated the great demon Goragora, 
+the pure evil. Arabia will be a dream world again. Now, let's go and see the 
+King Feisal.
+   ASHELATO: Thank you, Isfa.
+   ISHUTAL: You have saved Arabia.
+   ROXANNE: Thanks to you, we are all in this palace together.
+   SCHEHERAZADE: Isfa, thank you so much.
+   FEISAL: The pure evil Goragora has been destroyed and the power of the 
+justice Airosche has recovered. I thank you very much on behalf of the 
+Arabian people. By the way, Isfa, what will you do from now?
+   ISFA: As long as the mysterious world calls me, I continue my journey.
+   FEISAL: I see. You don't stay in a same place long.
+   ASHELATO: You are leaving, Isfa.
+   ISHUTAL: We will miss you.
+   ROXANNE: Sob.......
+   SCHEHERAZADE: I, I'll... Ah..., Isfa, always remember there will be 
+someone waiting for you.
+   KEBABU: Let's go, Isfa.
+   FARUK: I'll go with you, too.
+   GUN MECA: Yes, you were born for the adventure.
+   SUPICA: Let's go, Isfa.
+   EPIN: Scheherazade, don't worry about Isfa. He always has us!
+   PUKIN: Let's go, Isfa.
+   MUSTAFA: Let's go, Isfa.
+   GUBIBI: Scheherazade, don't worry about Isfa. He always has us!
+   RAINY: If we work together, there's nothing to be scared of.
+   HASSAN: Let's go, Isfa.
+   FEISAL: Everyone, stay at Isfa's side.
+   SCHEHERAZADE: Take care of yourself. Good bye for now, Isfa.
+   ISFA: Scheherazade, I'll be back for you someday!
+
+   "Your journey will be halted for a while. But, somewhere, in some era, 
+someone is waiting for your help. With your courage against evil and your 
+love to long for peace, you will continue to fight. Well, the time door will 
+open again soon......"
+
+*******************************
+*  5. Enemies and Formations  *
+*******************************
+
+   Here's a list of all the various ally formations that can be used during 
+the menu-based battles and a list of all the enemies that appear in menu-
+based battles. Some of these would be great names for Pokémon, eh? Just 
+kidding...
+
+     ALLY FORMATIONS:
+
+CYGNUS - Coronya & Faruk.
+       - Use against Amaries & Corsa's Basido Squad.
+       - Magic attack is GYGATORN. Uses 10 MP per person in your party.
+LIBRA  - Gun Meca & Kebabu.
+       - Use against Pandarm & Corsa's Air Squad.
+       - Magic attack is MONIBURN. Uses 10 MP per person in your party.
+ARIES  - Epin & Supica.
+       - Use against Cytron & Megarl's Fire Squad.
+       - Magic attack is TORNADOR. Uses 15 MP per person in your party.
+SIRIUS - Pukin & Mustafa.
+       - Use against Pandarm & Megarl's Gilas Regiment.
+       - Magic attack is STARDON. Uses 25 MP per person in your party.
+KAITOS - Gubibi & Rainy.
+       - Use against Gazeil & Romsarb's Magma Regiment.
+       - Magic attack is THUNDERN. Uses 20 MP per person in your party.
+DRAGON - Faruk & Hassan.
+       - Use against Wazarn & Razaleo's Zodor Division.
+       - Magic attack is FIREBOLT. Uses 15 MP per person in your party.
+
+     ENEMIES:
+
+Amaries - 12 HP. Gives 4 EP & 21 Rupias.
+Berlah - 12 HP.
+Blimro - 3 HP. Gives 2 EP & 1 Rupia.
+Corsa - 16 HP. Gives 10 EP & 10 Rupias.
+Curgot - 10 HP. Gives 5 EP & 20 Rupias.
+Cytron - 24 HP. Gives 8 EP & 10 Rupias.
+Dalzark - 32 HP. Gives 15 EP & 30 Rupias.
+Derol - 12 HP.
+Gangar - 54 HP. Gives 16 EP & 40 Rupias.
+Gazeil - 36 HP. Gives 12 EP & 16 Rupias.
+Gigadan - 72 HP.
+Gorgon - 88 HP. Gives 34 EP & 34 Rupias.
+GorgonX - 122 HP.
+Kakkara - 12 HP. Gives 4 EP & 3 Rupias.
+Medusa - 24 HP. Gives 20 EP & 4 Rupias.
+Megarl - 42 HP. Gives 15 EP & 15 Rupias.
+Meldo - 4 HP. Gives 3 EP & 10 Rupias.
+Miniyad - 12 HP. Gives 10 EP & 1 Rupia.
+Pandarm - 16 HP. Gives 7 EP & 5 Rupias.
+Pharyad - 54 HP. Gives 16 EP & 10 Rupias.
+Razaleo - 111 HP. Gives 30 EP & 34 Rupias.
+Romsarb - 54 HP. Gives 18 EP & 22 Rupias.
+Samrima - 3 HP. Gives 2 EP & 5 Rupias.
+Wazarn - 54 HP. Gives 16 EP & 10 Rupias.
+Zahhark - 76 HP. Gives 20 EP & 29 Rupias.
+
+     ENEMY FORMATIONS:
+
+Air Division - 4 Pharyad & 2 Zahhark.
+Air Regiment - 2 Pandarm & 2 Megarl.
+Air Squad - 1 Pandarm & 1 Corsa.
+Basido Division - 4 Wazarn & 2 Zahhark.
+Basido Squad - 1 Amaries & 1 Corsa.
+Fire Party - 2 Gigadan & 4 Derol. Gives 68 EP & 28 Rupias.
+Fire Regiment - 2 Gazeil & 2 Megarl.
+Fire Squad - 2 Cytron & 2 Megarl.
+Gilas Regiment - 4 Pandarm & 2 Megarl.
+Gilas Regiment - 4 Pandarm & 2 Romsarb.
+Gilas Clan - 6 Miniyad & 1 Pharyad.
+Magic Squad - 6 Blimro & 1 Medusa.
+Magic Squad - 6 Berlah & 1 GorgonX. Gives 198 EP & 1 Rupia.
+Magma Division - 4 Gangar & 2 Razaleo.
+Magma Regiment - 2 Gazeil & 2 Romsarb.
+Zodor Division - 4 Wazarn & 2 Razaleo.
+
+*************************
+*  6. Items and Spells  *
+*************************
+
+   The number next to each item represents how many you can hold, while the 
+number next to each spell tells how much MP it takes to use that form of 
+magic.
+
+     ITEMS:
+
+->BREAD (10): Automatically restores 50 HP when you lose all of your HP.
+->MASHROOB (10): Automatically restores 50 MP when you lose all of your MP.
+->CARPET (15): Lets you warp to other cities and escape from palaces and 
+mazes. Magic carpets cannot be used in during boss battles.
+->R.SEED (5): Abbreviation for Rupia seed. You can plant this in a magic 
+field during an Alalart Solar Eclipse, or you can eat it. If you plant it, a 
+Rupia Tree will grow and you'll get lots of money. If you eat it, you will 
+become invisible for a short period of time.
+->MAP (1): A map for the palaces and mazes of a world. You can view it by 
+pressing Select. There is one to be found in every world.
+->KEY (9): Lets you open locked doors in palaces. It is used automatically.
+->HORN (5): A Kibra's Horn. Shoot it at the stone statues in palaces.
+->HAMMER (5): Causes stars to fall from the sky. It's HammerTime!
+->RING (1): You automatically get this when Kebabu joins your party. It can 
+be used during boss battles only. When you use it, Kebabu will carry you to 
+the previous room of the palace.
+->AMULET (9): When a boss or mini-boss uses a transformation magic, the 
+Amulet makes you change back to your normal form faster. It is used 
+automatically.
+
+     SPELLS:
+
+->OPRIN (5 MP): Causes a secret stairway to appear on some screens.
+->PAMPOO (2 MP): Restores 10 HP.
+->BOLTTOR1 (4 MP): A lightning bolt hits one enemy on-screen.
+->BOLTTOR2 (15 MP): [Replaces BOLTTOR1]
+->BOLTTOR3 (20 MP): [Replaces BOLTTOR2]
+->DEFENEE (2 MP): Raises your defense temporarily.
+->FLAMOL1 (20 MP): A wave of fire hits all enemies on-screen.
+->FLAMOL2 (25 MP): [Replaces FLAMOL1]
+->FLAMOL3 (30 MP): [Replaces FLAMOL2]
+->CORBOCK (2 MP): Temporarily changes all enemies on-screen into tiny people.
+->SHRINK (2 MP): [Replaces CORBOCK]
+->CARABA (20 MP): [Replaces SHRINK]
+->RAMIPAS (10 MP): You won't encounter enemies for a while.
+->MARITA (4 MP): Restores 50 HP.
+->MONECOM: Monecom can be used in any world during an Alalart Solar Eclipse, 
+but you can only use it once in the game. It gives you 999 Rupias and the 
+maximum amount of each item.
+->RAINCOM: Raincom can be used in world 2 or 4 during an Alalart Solar 
+Eclipse, but once you use it you can never use it again. It stops you from 
+taking damage caused by the desert and makes grass grow over the sand. It 
+also fills up your HP and ends the current solar eclipse. Plus, it stops 
+random on-screen enemy encounters (but there are still random RPG battles).
+->SPRICOM: Spricom can only be used in the future of world 3 during an 
+Alalart Solar Eclipse, and it can only be used once. It stops you from taking 
+damage in the snow and causes winter to change into spring. It also fills up 
+your HP and ends the current solar eclipse. Plus, it stops random on-screen 
+enemy encounters (but there are still random RPG battles).
+->MOSCOM: Moscom can be used in world 4 or 5 during an Alalart Solar Eclipse. 
+It allows one-time instant access to a mosque, but this mosque can only be 
+used to change your class. But, this service is free. This is very useful if 
+you need to change your class before you fight Salamander.
+->LIBCOM: Libcom can only be used in world 5 during an Alalart Solar Eclipse. 
+It brings all your allies back to life and fills everyone's HP and MP.
+
+*********************************************
+*  7. Magic Field and Magic Star Locations  *
+*********************************************
+
+MAGIC FIELDS:
+   In The Magic of Scheherazade, there are secret areas called magic fields. 
+They are usually accessed by using the magic spell, OPRIN (not to be confused 
+with Oprah- Oprah! Oprah! Come in, Oprah!). During an Alalart Solar Eclipse, 
+you can plant a Rupia seed at these places. When you go back to the area in 
+the future, you can harvest the Rupias from the Rupia tree. Here are the 
+planting and harvesting magic field locations:
+
+   CHAPTER 1: Planting area is 1E of Rudoria (past).
+              Harvest area is 1E of Rudoria (present).
+   CHAPTER 2: Planting area is 1W and 5S of Alart (past).
+              Harvest area is 1W and 3S of Copanes (present).
+   CHAPTER 3: Planting area is 1S and 1W of Passora (present).
+              Harvest area is 1W of Kasimeel (future).
+   CHAPTER 4: Planting area is 3W, 2N, 2E, 1N, and 1W of Farvil (past).
+              Harvest area is 2W, 1N, 1E, 1N, and 1E of Chigris (present).
+   CHAPTER 5: --None--
+
+MAGIC STARS:
+   In this game, there are mysterious gold screens that have a picture of a 
+star in the center. I believe they are hexagrams. I will call these "Magic 
+Stars" (ohh, I'm getting imaginative now). If you stand on the star, your MP 
+is completely refilled. This is an excellent way to refill HP, too. Just use 
+PAMPOO or MARITA to fill up your HP, and then fill up your MP by stepping on 
+the star. You can fill your MP as many times as you want- just leave the 
+screen and go back to star.
+
+   CHAPTER 1: --None--
+   CHAPTER 2: In the past, go 1E and 1N of the time door.
+   CHAPTER 3: In the present, go 2S, 1W, 2S, 2W, 1S, 1W, and 1N of Kasimeel.
+   CHAPTER 4: In the past, go 1S, 2W, and 2N of Yufla Palace.
+   CHAPTER 5: In the present, you can find it in Sabaron's Palace.
+
+***********************
+*  8. Level-Up Chart  *
+***********************
+
+   Throughout the game, whenever you kill an enemy in the overworld or in the 
+menu-based battles, you get experience points (EP). When you reach a certain 
+number, you level up. When you level up, your maximum health points (HP) and 
+maximum magic points (MP) go up, and you sometimes might learn a new magic 
+spell. Also, the power of your rod or sword may go up depending on what level 
+you are at. In each Chapter, there is a maximum level that you can reach. 
+Also, if you do not reach that maximum level before the end of the Chapter, 
+you will automatically level up after you beat the boss of that Chapter. Here 
+is a table that shows what you get when you level up:
+
+   LEVEL   EP      HP    MP    SPELL             WEAPON INCREASE   CHAPTER
+
+   1       0       50    16    OPRIN                                  1
+   2       20      58    20    PAMPOO                                 1
+   3       80      66    52    BOLTTOR1               SWORD           1
+   4       240     74    68    DEFENEE                 ROD            1
+   5       560     82    78                           SWORD           1
+   6       640     90    84                                           2
+   7       780     98    94    FLAMOL1                 ROD            2
+   8       980     116   100                          SWORD           2
+   9       1280    124   108   CORBOCK              SWORD/ROD         2
+   10      1800    132   115                                          2
+   11      2000    140   148   BOLTTOR1->BOLTTOR2      ROD            3
+   12      2400    148   155                          SWORD           3
+   13      3000    156   165   CORBOCK->SHRINK      SWORD/ROD         3
+   14      3800    164   180   FLAMOL1->FLAMOL2       SWORD           3
+   15      4800    172   185   RAMIPAS                 ROD            3
+   16      5200    180   190                                          4
+   17      6000    188   200   BOLTTOR2->BOLTTOR3   SWORD/ROD         4
+   18      7200    196   204                                          4
+   19      8800    204   208                        SWORD/ROD         4
+   20      10800   212   218   SHRINK->CARABA         SWORD           4
+   21      11300   220   220   MARITA               SWORD/ROD         5
+   22      12550   228   228                          SWORD           5
+   23      14550   236   236   FLAMOL2->FLAMOL3     SWORD/ROD         5
+   24      17300   244   245                                          5
+   25      20800   255   255                                          5
+
+*************************
+*  9. Secret Passwords  *
+*************************
+
+   PASSWORD:  RESULT:
+
+   W1         Starts Chapter 1 with minimum items. Must enter it four times.
+   W2         Starts Chapter 2 with minimum items. Must enter it four times.
+   W3         Starts Chapter 3 with minimum items. Must enter it four times.
+   W4         Starts Chapter 4 with minimum items. Must enter it four times.
+   W5         Starts Chapter 5 with minimum items. Must enter it four times.
+   1W         Starts Chapter 1 with maximum items.
+   2W         Starts Chapter 2 with maximum items.
+   3W         Starts Chapter 3 with maximum items.
+   4W         Starts Chapter 4 with maximum items.
+   5W         Starts Chapter 5 with maximum items.
+   END        Lets you view the ending sequence.
+   SOUND      A sound test that includes 32 sounds from the game. Use up and
+              down to choose a sound and press Start to listen to it.

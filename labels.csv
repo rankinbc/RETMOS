@@ -16,7 +16,7 @@ bank,addr,name,comment
 7,E3B9,sub_E3B9,Called during level init
 7,E3A7,sub_E3A7,Called during level init
 7,E0EE,sub_E0EE,Called during level init
-7,E06B,wait_frame,Wait for NMI / frame sync
+7,E06B,bank3_dispatch_1,Bank 3 dispatch entry 1 ($3A=1): party/entity stat processing at $C6FD
 7,E3B6,sub_E3B6,Called during game setup
 7,F2BC,sub_F2BC,Called during game setup
 7,E08E,sub_E08E,Called during game loop setup
@@ -32,7 +32,7 @@ bank,addr,name,comment
 7,E290,game_loop,Main game processing loop (while $80 != 0)
 7,E97D,indexed_jmp,A=index into inline addr table following JSR then JMP
 7,E992,queue_sound,Queue sound: A=ID ($FF=silence $00=nop else enqueue to $03E7). 84 call sites
-7,E0EC,sub_E0EC,Called when game state $80 == 0
+7,E0EC,bank6_dispatch_22,Bank 6 dispatch entry 22 ($3A=22): game state exit handler
 7,EEB3,sub_EEB3,Called in wait loop at $E2B8
 7,EEEE,nmi_ppu_update,PPU VRAM update driven by $AD flags
 7,EF73,sub_EF73,VRAM address calculation helper
@@ -115,3 +115,354 @@ bank,addr,name,comment
 *,00FE,current_noise,Currently playing noise track ID
 *,0380,ch_state_base,Music channel state base: 4 channels x 4 bytes (ptr_lo ptr_hi duration last_period)
 *,0394,channel_active_mask,Bitmask of active music channels (bit 0-3)
+4,8000,jtable_b4,Bank 4 jump table (25 entries)
+4,813B,screen_load,Full screen load sequence (WorldScreen -> tiles -> palette -> entities)
+4,819F,screen_transition_check,Compare ParentWorld old/new and queue transition sound
+4,82A1,read_worldscreen,Read 16-byte WorldScreen record from CHR into $B0-$BF
+4,8282,clear_oam_entities,Clear OAM buffer ($0200) and entity slots ($0601+)
+4,8354,load_palette,Palette loader: $BC->BG palette $BD->sprite palette via $93F3/$951F
+4,8399,palette_subgroup,Load 4 color subpalette from $93F3+ID*4 -> $04A0+
+4,841B,load_tile_sections,Tile section loader: DataPointer $B8 -> CHR bank + TileSection read
+4,8500,build_nametable,Nametable column builder: tile IDs -> metatile -> PPU data in $0163
+4,859F,tile_metatile_lookup,Look up metatile data at $95FB+tile_id*4 and attrib at $99FB
+4,8640,spawn_entities,Entity/object spawn: read ObjectSet $B3 from CHR bank 23
+4,8738,entity_data_read,Read entity spawn data from CHR bank 23 into $0400 buffer
+4,83DB,load_ambient_cfg,Load ambient sound config from $93E3 table via $B1 bits 0-1
+4,8930,entity_sprite_lookup,Entity sprite attribute lookup via $9F3B table
+4,896E,entity_seq_advance,Entity behavior sequence advance via $9FBB table
+4,93E3,ambient_cfg_table,Ambient sound config: 4 entries x 4 bytes -> ZP $C7-$CA
+4,93F3,palette_index_table,Palette index table: 4B per palette ID -> color group indices
+4,951F,palette_color_table,NES palette color values ($00-$3F) for palette construction
+4,95FB,minitile_table,MiniTile table: 4B per entry = 2x2 CHR tile indices
+4,99FB,tile_attrib_table,Tile attribute/collision flags: 1B per tile ID
+4,9AFB,tile_table,Tile table: 4B per tile ID = 2x2 MiniTile IDs
+4,9F3B,entity_sprite_ptr,Entity type -> sprite attribute data pointer table (32 entries)
+4,9FBB,entity_seq_ptr,Entity type -> behavior sequence pointer table (32 entries)
+7,EE93,data_bank_init,Setup CHR/PRG data bank read: A=bank Y=offset -> $EA/$EC/$AD
+7,EFA8,data_read_byte,Universal data read: PRG via ($E8)Y or CHR via $2006/$2007
+4,BD34,dict_b4,Dictionary: 119 entries (NPC names + common words + game terms)
+4,8032,text_ptr_table,Pointer table: 7 code ptrs + 21 string ptrs into $BD34+
+4,8E29,collision_grid_build,Build collision/walkability grid in $0190-$01CF
+7,E8D1,chr_data_read,CHR ROM data read: transfer from PPU to CPU RAM via $EB/$EC/$ED
+7,E6FF,data_stream_read,Data stream reader: sequential reads from CHR/PRG data with control codes
+*,031D,data_stream_idx,Data stream sequential read index (reset to 0 on end marker)
+*,0400,entity_spawn_buf,Entity spawn data buffer (read from CHR bank 23 ObjectSet)
+*,0500,nametable_tile_buf,Nametable tile buffer (8x24 = 192 entries for column building)
+4,9EFB,entity_oam_flags,OAM attribute flags per entity type (32 entries: 0/1/3)
+4,9F1B,entity_size_flags,Entity size/priority flags per type (32 entries: 0/1/3)
+4,9F7B,entity_oam_layout,Entity OAM multi-sprite layout pointer table (32 entries -> $A98C+)
+4,9FFB,entity_anim_tbl,Entity animation state pointer table (32 entries)
+4,A03B,entity_sprite_comp_tbl,Entity type sprite composition sub-tables (32 entries -> $A0BB+)
+4,A0BB,entity_proc_data,Entity processing sub-tables (nested ptr16 -> $AC00+ behavior)
+4,A429,entity_seq_data,Animation sequence data ($FE=group sep $FF=end $80=loop)
+4,A630,entity_sprite_data,Sprite CHR tile + OAM attribute records per direction
+4,A98C,entity_oam_data,OAM multi-sprite layout records (Y/tile/attr groups $FF-term)
+4,AC00,entity_behavior,Entity-specific behavior routines and data
+4,89A7,entity_type_proc,Entity type-specific processing dispatch (idx 2)
+4,8D37,sprite_visibility,Sprite visibility/OAM culling manager (idx 8)
+4,8FEE,chr_data_loader,CHR data loader for screen layout (idx 7)
+*,0600,entity_slots,Entity slot array (stride 8 x 32 slots: type state xpos ypos seqidx gridpos saved_x extra)
+*,0700,entity_ext,Entity extended array (stride 8 x 32: timer subphase _ _ behav_flags _ _ flags)
+*,0190,collision_grid,Collision/walkability grid (64 bytes for screen)
+4,8B19,entity_move_update,Entity movement update + projectile velocity (idx 9)
+4,81D2,tile_nametable_update,Single tile -> metatile -> PPU nametable address (idx 13)
+4,825A,tile_collision_lookup,Tile collision type from $0500 buf via $99FB attrib (idx 14)
+4,826B,entity_gridpos_set,Packed coord -> entity screen X/Y + 8px center (idx 15)
+4,830A,screen_music_select,Screen event/music selector from $BF/$B2 fields (idx 17)
+4,8CD2,oam_icon_render,OAM sprite icon renderer from $8D23 tile table (idx 22)
+4,8D23,icon_tile_ids,Sprite icon tile ID table (20 entries for HUD icons)
+4,912B,nametable_wait_ready,Wait for nametable buffer empty then setup CHR read
+5,8000,b5_jtable,Bank 5 jump table (20 entries)
+5,8028,entity_tick_all,Loop all entity slots 1-31 calling entity_tick for each
+5,803A,entity_tick,Per-entity behavior tick: type->sub-table->sub-state->handler
+5,8090,entity_dispatch,Entity behavior dispatch via JMP ($0002)
+5,80AD,entity_extended_check,Extended entity type processing (types $13/$14/$17/$1C/$1D/$3D/$3F)
+5,80E5,type_behavior_table,Entity type -> per-type sub-state table pointer (64 entries)
+5,8165,type0_subtable,Types 0-1 sub-state table (basic enemies 8 states)
+5,81A3,type5_subtable,Type 5 (player) sub-state table (16 states)
+5,873D,player_default,Player default sub-state handler (timer + direction)
+5,8A60,player_input_dir,Player input/direction processing
+5,9B76,player_spawn,Player spawn/init: set type 5 position sound
+5,9FE0,player_sprite_oam,Player sprite OAM positioning
+5,A173,event_entity_spawn,Event-triggered entity spawn from WorldScreen $BF
+5,A43E,player_damage,Player damage calc: HP -= amount with floor 0
+5,A482,player_attack,Player attack initiation: set type 2 queue sound $3A
+5,AD1E,event_progress_check,Event/progress trigger check via $95 chapter state
+5,AEBD,screen_entry_place,Screen entry entity placement from $B9 ExitPosition
+5,AEE3,entity_bounds_check,Entity screen bounds checker (edge proximity flags)
+5,BD18,hud_nametable_write,HUD/status bar nametable writer from $FF24 table
+7,E0D5,bank5_dispatch,Bank 5 dispatch: STA $3B LDA #$05 JMP $E11E
+1,8044,text_engine,Text engine main: hi3=mode lo5=subindex dispatches text rendering
+1,818B,text_screen_init,Text screen init: restore CHR mode silence sound setup rendering
+7,E03F,bank1_dispatch,Bank 1 dispatch: STA $3B LDA #$01 JMP $E11E
+7,E058,bank2_dispatch,Bank 2 dispatch: STA $3B LDA #$02 JMP $E11E
+2,A61C,text_entry_lookup,Text entry lookup: text_id*6 into $9C3A table read 6-byte header
+2,A91A,text_data_init,Text data init: setup pointer buffers from $05F0 state
+2,99B7,dict_ptr_table,Dictionary pointer table (16 groups of bit7-terminated words)
+2,99D7,dict_words,Dictionary word data start (16 groups $99D7-$9C37)
+2,9C3A,text_entry_table,Text entry table (6B each: data_ptr PPU_addr params)
+2,A377,text_write_char,Write char $06 to $0163 nametable buffer (or space if $0502 bit 7)
+2,A3D8,text_char_loop,Per-character decode loop: ($00)Y -> tile ID or end-of-word
+2,A40B,dict_lookup,Dictionary lookup: ref byte hi4=group lo4=word via $99B7 table
+2,A55C,text_stream_loop,Text stream rendering loop: one char per NMI until done
+2,A1BC,multiply_16bit,16-bit multiply: $0A:$0B = $0C:$0D * $0E:$0F
+2,A573,text_fill_background,Text background fill: space-pad nametable rows
+2,A4DB,text_position_init,Initialize character position buffer $0550 (16 slots)
+7,F24A,nmi_spin_wait,NMI spin wait: clear $1C bit 7 then spin until NMI sets it again
+7,F743,frame_check,Check rendering active + sprites visible before frame sync
+7,EEB3,vram_transfer_wait,VRAM transfer helper: process pending transfers then wait_nmi
+7,E2B8,vram_drain_loop,Drain loop: spin until $18/$0162/$0163 all clear (VRAM flushed)
+7,C6FD,battle_stat_proc,Bank 3 entry 1: party/entity stat processing (A=$00 mode)
+7,C3A8,sprite_render_loop,OAM sprite render: ($D5) data * $D2 count + $D3/$D4 Y/X offset
+7,E06D,bank3_dispatch,Bank 3 dispatch: STA $3B LDA #$03 JMP $E11E
+*,0016,oam_write_ptr,OAM buffer write pointer (byte offset into $0200 starts at $14)
+*,0017,oam_write_limit,OAM buffer write limit
+*,007F,frame_counter,Frame counter (incremented by wait_nmi each vblank)
+1,86EA,pwd_checksum_validate,Password checksum: multiply by weight compare BCD sum
+1,870F,bcd_subtract,BCD subtract: $89:$8A:$8B -= $09:$0A:$0B (mod 10 per digit)
+1,872B,bcd_add,BCD add: $89:$8A:$8B += $09:$0A:$0B (mod 10 per digit)
+1,8746,pwd_encode_state,Password encode: read game state $0300+X convert to BCD
+1,8B89,multiply_16bit_b1,16-bit multiply: $0A:$0B = $0C:$0D * $0E:$0F (bank 1 copy)
+1,8BBC,int_to_bcd,16-bit to BCD: divide $0C:$0D into 10000s/1000s/100s/10s/1s
+1,947B,pwd_decode_byte,Password decode: $0570 hi4=cmd lo4=val ($40=level $60=stat $20=unlock)
+1,8250,pwd_gen_main,Password generation main loop (state machine for password screen)
+1,8680,pwd_cmd_process,Password command processor: read ($04D1) commands + checksum
+1,8819,pwd_display_update,Password display update: set $04E3 bit 7 + NMI sync
+1,82CC,pwd_char_output,Password character output: compute grid char = 10 - $02D3[X]
+1,82B8,pwd_weight_mult,Password weight multiply: $04D6 * $049B -> $04D6/$04D7
+1,93A6,pwd_template_load,Load 16-byte password template from $93D0 to $0570
+1,8AC4,pwd_nmi_sync,Password NMI sync: check $04E3 flag + nametable update + wait_nmi
+1,8304,pwd_write_nametable,Write password display bytes to $0163 nametable buffer
+1,94ED,pwd_display_ptrs,Password display pointer table (8 groups of 4 command pairs)
+1,86D6,pwd_checksum_call,Call checksum on current position (skips command processing)
+1,866E,pwd_load_display_ptr,Load display layout pointer from $94ED table ($04E1 index)
+*,0300,gortrat_bread_counter,Bread of Gortrat event counter (limited heal-on-walk events max 9)
+*,0301,gortrat_mashroob_counter,Mashroob equivalent event counter (limited MP heal events max 9)
+*,0302,armor_level,Armor: 0=none 1=R-ARMOR(half dmg) 2=L-ARMOR(quarter dmg)
+*,0303,m_shield,M-SHIELD flag (defense upgrade ch3+)
+*,0304,m_boots,M-BOOTS flag (movement upgrade ch1+)
+*,0305,holyrobe,HOLYROBE flag (base defense always available)
+*,030F,rod_charges,ROD weapon ammo (item index 1 max 5)
+*,0310,flame_charges,FLAME weapon ammo (item index 2 max 5)
+*,0311,stardust_charges,STARDUST weapon ammo (item index 3 max 15)
+*,0306,bread_count,BREAD item count (auto-restore 50 HP on death; max 10; game over if 0)
+*,0307,mashroob_count,MASHROOB item count (auto-restore 50 MP on depletion; max 10)
+*,0308,key_count,KEY item count (auto-used on locked doors; DEC at $F2CB)
+*,0309,amulet_count,AMULET item count (max 9; auto-reverses transformation spells)
+3,8341,enemy_stat_table,Enemy stat table (29 entries x 10B: EP Rupia combat[5] HP unk[2]. IDs $0D-$29)
+7,D386,chapter_boundary_table,Chapter boundary screen indices (5 entries: 1 6 10 16 20)
+7,EFA8,data_read_byte,Universal data read: PRG via ($E8)Y or CHR via $2006/$2007
+7,EE93,data_bank_init,Setup CHR/PRG data bank read: A=bank Y=offset
+6,BF9B,copy_screen_params,Copy 6 bytes from $0590+Y buffer to WorldScreen ZP $B8-$BD
+4,841B,load_tile_sections,Tile section loader: $B8 flags -> CHR bank 26 TileSection read
+*,030E,player_level,Player level (pwd decode hi4=$40; entity spawn scaling)
+*,0322,magic_level,Magic level (pwd decode hi4=$60; entity spawn system)
+*,0336,weapon_equipped,Weapon equipped flag (required for attack: bank 5 $8854)
+*,0332,equipped_sword,Equipped sword ID (written by items 9-14 via handler $8E3D)
+*,0336,gate_sword,Sword gate: enables attack (ch1+ progression flag)
+*,0337,gate_rod,Rod gate: enables rod weapons (ch1+ progression flag)
+*,0338,gate_magic,Magic gate: enables spells in mode 2 (ch2+ progression flag)
+*,0339,gate_adv_magic,Advanced magic gate (ch3+ progression flag)
+*,033A,gate_formation,Formation gate: enables RPG formations (ch2+)
+*,033B,gate_party,Party gate: enables party commands (ch1+)
+*,033F,gate_ultimate,Ultimate ability gate (ch4 only)
+6,8E3D,sword_equip_handler,Sword equip: writes to $0332/$0333 entity state for equipped weapon
+6,9163,chr_page_lookup,Item CHR page lookup: maps item category to tile offset in CHR bank 23
+6,9140,item_chr_display,Item CHR display: set up CHR bank $17 for item graphic rendering
+6,9654,item23_mode_change,Item 23 handler: set $72=5 (area/mode flag)
+6,9659,item24_battle_event,Item 24 handler: trigger RPG battle via $DE93 ($03E0 ch4)
+6,966A,item25_full_restore,Item 25 handler: max all resources + zero gold + battle event ($03E1)
+6,96AE,item26_screen_event,Item 26 handler: screen transition via $E019 ($03E2 ch3+)
+6,96B9,item27_ceremony,Item 27 handler: blessing cutscene sound $1E + $4F jingle ($03E3 ch1+)
+6,9725,item28_magic_effect,Item 28 handler: palette cycle effect from $977B table ($03E4 ch2+)
+6,91DC,item29_entity_action,Item 29 handler: NPC/entity interaction via $0319 slot reference
+*,03D6,chapter_bcd,Current chapter number (BCD 1-5)
+*,03D9,gold_hundreds,Gold BCD hundreds digit
+*,03DA,gold_tens,Gold BCD tens digit
+*,03DB,gold_ones,Gold BCD ones digit
+5,8A87,gortrat_bread_use,Gortrat bread event: check $0300 > 0 then DEC and set $031C bit 3
+5,8BD2,hp_restore_gortrat,Gortrat bread HP restore: HP += 20 ($14) capped at max ($91) + sound $1A
+7,F1FA,death_check_bread,Death handler: if HP=0 check BREAD ($0306) DEC + HP=50 or game over
+6,97EC,xp_reward_table,XP progression reward table (24 x 4B: threshold + reward + flag offset)
+6,99D8,item_addr_lookup,Item/spell index -> $0300 offset lookup table
+6,A886,spell_index_table,Progression index -> dictionary group 7 spell index (13 entries)
+6,97A0,xp_reward_handler,XP threshold check: compare $85/$86 and award unlock
+6,98E8,item_data_table,Item data table (30 entries x 8B: id sound flags handler_lo handler_hi 0 subtype param)
+6,950F,item_lookup,Item lookup: validate ID + check $99D8 for consumable count + set Y=ID*8
+6,955B,item_consume,Item consume: decrement $0300+offset if nonzero then Y=ID*8
+1,80B3,text_mode3_chr,Mode 3 CHR dialogue: map sub-index to CHR bank 22-24 offset
+2,A0DB,nmi_text_sync,NMI sync for text: check $04E3 + optional CHR update + wait_nmi
+2,A101,int_to_bcd_b2,16-bit to BCD conversion (bank 2 copy: divide into 5 digits)
+2,A1BC,multiply_16bit_b2,16-bit multiply: $0C:$0D * $0E:$0F -> $0A:$0B (bank 2 copy)
+2,A377,text_write_char,Write char $06 to $0163 nametable buffer ($0502 bit 7 forces space)
+2,A3D8,text_char_loop,Per-char decode: ($00)Y bit7=end-of-word strip+pad else write+advance
+2,A40B,dict_lookup,Dictionary lookup: hi4=group into $99B7 lo4=word skip N entries
+2,A4DB,text_position_init,Init position buffer $0550 (16 slots $FF=end marker)
+2,A55C,text_stream_loop,Main text render loop: wait NMI per char until $18=0
+2,A573,text_fill_background,Space-pad nametable rows + render text line + advance row
+2,A61C,text_entry_lookup,Text entry lookup: ID*6 into $9C3A -> 6-byte header to $0528
+2,A91A,text_data_init,Text data init: load from $05F0 state + position from $A9CA table
+2,A9CA,text_position_table,Text box position data (4 entries x 4B: PPU addr + dimensions)
+2,AC08,pwd_secret_check,CHOCOLA/CORONYA password 7-char compare vs $AC27 table
+1,8181,text_set_chr_mode,Set CHR mode for text rendering (Y=bank offset 0-3)
+*,0323,spell_bolttor1,BOLTTOR1 unlock (Lv3 EP 80)
+*,0324,spell_bolttor2,BOLTTOR2 unlock (Lv11 EP 2000 upgrades BOLTTOR1)
+*,0325,spell_bolttor3,BOLTTOR3 unlock (Lv17 EP 6000 upgrades BOLTTOR2)
+*,0326,spell_flamol1,FLAMOL1 unlock (Lv7 EP 780)
+*,0327,spell_flamol2,FLAMOL2 unlock (Lv14 EP 3800 upgrades FLAMOL1)
+*,0328,spell_flamol3,FLAMOL3 unlock (Lv23 EP 14550 upgrades FLAMOL2)
+*,0329,spell_pampoo,PAMPOO unlock (Lv2 EP 20)
+*,032A,spell_marita,MARITA unlock (Lv21 EP 11300)
+*,032D,spell_corbock,CORBOCK unlock (Lv9 EP 1280)
+*,032E,spell_shrink,SHRINK unlock (Lv13 EP 3000 upgrades CORBOCK)
+*,032F,spell_caraba,CARABA unlock (Lv20 EP 10800 upgrades SHRINK)
+*,0330,spell_defenee,DEFENEE unlock (Lv4 EP 240 -- 2MP temp defense boost)
+*,0331,spell_ramipas,RAMIPAS unlock (Lv15 EP 4800 -- 10MP no encounters)
+1,93D0,pwd_template_data,Password template data (16-byte default game state blocks)
+1,9430,pwd_chapter_data,Password chapter-specific data (4-byte blocks)
+*,0570,pwd_decode_buf,Password decoded game state buffer (16 bytes)
+6,B78C,secret_name_check,Check name buffer $0400 against secret name table at $B7CC (7 entries)
+6,B7CC,secret_name_table,Secret name table: 1W 2W 3W 4W 5W END SOUND (length-prefixed entries)
+6,BA25,handler_end,Secret name END handler: starts ending/credits sequence at $BC7F
+6,BA3C,handler_sound_test,Secret name SOUND handler: infinite sound test loop (32 entries at $BAAE)
+6,BAAE,sound_test_table,Sound test ID table (32 entries terminated by $00)
+6,BAD1,handler_chapter_warp,Secret name 1W-5W handler: load chapter init data from $BB1F
+6,BB1F,chapter_warp_data,Chapter warp init data (7 bytes per chapter x 6 entries)
+6,BC7F,ending_sequence,Ending/credits sequence entry: clears entities enters credit state machine
+6,BCA6,ending_state_dispatch,Ending state machine dispatch via indexed_jmp (10 states)
+6,B9A6,name_tile_map,Name entry tile mapping: 26 letters (A-Z=$30-$49) + digits (1-9=$01-$09) + specials
+6,B9BC,password_start_char,Password first character required value ($46 = W)
+6,B7E6,password_verify,Password/continuation code verify: W+chapter+8 encoded chars
+6,B98B,tile_map_lookup,Look up tile ID from grid index via $B9A6 table
+6,B994,tile_map_reverse,Reverse lookup: tile ID -> grid index via $B9A6 table
+2,AC08,pwd_secret_check,Continuation code secret check: 7-char compare $AC27 table vs $00 buffer
+2,AC27,pwd_secret_table,Continuation code passwords: CHOCOLA ($04D0=0) CORONYA ($04D0=1) (8-byte stride)
+7,F71A,chapter_data_ptrs,Chapter data pointer table (6 entries x 2 bytes)
+0,800E,sound_priority_table,Sound ID -> channel/priority byte (144 entries bits 7:6=ch bits 5:0=pri)
+0,889C,note_freq_table,Note frequency table (64 entries 16-bit NES APU periods)
+0,891C,noise_period_table,Noise period lookup table (31 entries)
+0,895A,noise_envelope_table,Noise envelope/volume table
+0,8C02,sfx_channel_records,SFX 8-byte channel records (35 x 4 ptr16 per SFX for IDs 1-35)
+0,8D17,sfx_overlay_data,SFX overlay channel data table (indexed by $FB*4)
+0,8E09,sfx_sequence_data,Start of SFX sequence data region ($8E09-$AFFF)
+0,81FE,sfx_channel_tick_all,Process all 4 SFX channels (stride $16 at $0100-$0157)
+0,8234,sfx_channel_tick,Single SFX channel tick (X=$DB channel offset)
+0,82CF,seq_cmd_parse,Sequence command parser - reads 4 bytes dispatches by bits 6:7
+0,82EF,seq_cmd_table,Sequence command dispatch table (4 entries type 0-3)
+0,83B8,seq_advance_ptr,Advance sequence pointer by A bytes
+0,83C4,channel_silence_check,Silence channel if not active/overlay
+0,84A9,note_freq_lookup,Look up note frequency from $889C table
+0,86DF,sfx_overlay_cmd_table,SFX overlay command dispatch table (4 entries)
+0,B000,display_render_entry,Display rendering module entry (nametable/screen building)
+0,B144,display_chr_setup,Display CHR bank setup and wait for NMI sync
+0,B331,display_tile_writer,Nametable tile write helper
+0,BBA2,display_screen_index,Screen data index table (packed address + flags)
+7,E006,bank0_dispatch_2,Bank 0 dispatch sled entry 2: INC $3A x2 -> $8004 -> $B000 display
+7,E000,bank0_dispatch_sled,Bank 0 dispatch sled (entries 0-5 via $E000-$E00A)
+7,CFA6,battle_display_call,RPG battle display update via bank 0 $B000
+7,D170,chapter_title_call,Chapter title screen via bank 0 $B000 (A=$4F)
+7,D4D0,dungeon_entry_call,Dungeon entry screen via bank 0 $B000 (A=$5F)
+7,D4F9,town_entry_call,Town entry screen via bank 0 $B000 (A=$60)
+7,D26E,victory_screen_call,Victory screen via bank 0 $B000 (A=$65)
+5,81A3,player_subtable,Player type 5 sub-state table (16 entries ptr16)
+5,873D,player_default,Player default sub-state handler (timer + direction)
+5,874F,player_timer_tick,Timer tick helper: dec $0700 dispatch bank4 entry 7
+5,875E,player_screen_scroll,Screen scroll 4-phase handler (indexed_jmp on $0701)
+5,87CB,player_npc_interact,NPC interaction: check $033E + $BF bit 2
+5,87F6,player_event_interact,Event interaction: check $0303 flag
+5,8802,player_pos_sync,Position sync: copy slot 0 X/Y to this entity
+5,881F,player_hurt,Hurt/knockback: timer + physics via $FBE9
+5,8836,player_stunned,Stunned: animation only no input
+5,883B,player_slide_attack,Slide/attack: move X + check weapon conditions
+5,88F6,player_death,Death sequence: 120 frame blink + cleanup
+5,89AC,entity_dir_table,Direction -> controller bitmask table (16 entries)
+5,89BC,entity_activity_flags,Sub-state activity flags (1=busy 0=allow AI) 16 entries
+5,85C2,spawn_attack_projectile,Spawn player attack/projectile entity
+3,90AD,battle_init_entry,Battle init entry: check $B593 then init sequence
+3,90B3,battle_init,Battle init: silence + music $62 + screen setup + start
+3,940A,battle_screen_setup,Battle screen setup: PPU off draw screen PPU on
+3,9444,battle_round_setup,Round setup: redraw and init for new round
+3,9658,battle_enemy_turn,Enemy turn processing: AI decision + alive check
+3,987F,battle_enemy_result,Enemy result processing: alive count via $C837
+3,9857,battle_party_result,Party result processing: scan $0529 for active members
+3,B593,battle_check,Battle entry guard: search index group for $94 match
+3,B56D,encounter_nav,Navigate encounter index groups: advance pointer by $82 groups
+3,8460,formation_table,Enemy formation table (12 x 10B: count + IDs + $FF padding)
+3,84E5,battle_grids,Battle grid layouts (~29 x 10B: header + 3x3 cell placement)
+3,8606,enemy_stats,Enemy stat table (HP/ATK/DEF/SPD per unit type)
+3,8019,encounter_index,Encounter index groups (per chapter/area 3-byte match records)
+3,A02A,attack_type1_setup,Attack type 1 params: flag=$04 anim=$0D display=$14 target=5 crit=2
+3,A047,attack_type2_setup,Attack type 2 params: flag=$02 anim=$04 display=$13 target=4 crit=4
+3,A553,spell_setup,Spell setup: check MP ($CB16) + target resolve ($CB83) + effect
+3,A74A,attack_execute,Attack execution: check target flags + hit check + animation + result
+3,B8B0,effectiveness_apply,Apply effectiveness: lookup $8A26/$8A43 table -> palette change $04A1
+3,8A26,effectiveness_base,Base effectiveness table (29 entries: palette group + tile per matchup)
+3,8A43,effectiveness_enhanced,Enhanced effectiveness table (29 entries: $05CA set = stronger)
+7,C0C4,damage_dispatch,Damage dispatch: check defense $0555 then animate by type X (0-$0C)
+7,CC43,hit_check,Hit/miss check: command type + target flags + RNG $CE8D
+7,CE8D,damage_rng,Damage RNG: frame counter loop + $0040 table lookup + variance
+7,C185,anim_basic_attack,Basic attack animation: sound $15 + spawn entity $27
+7,C1A5,anim_spell_attack,Spell attack animation: sound $17 + spawn entity $28
+7,C1B2,anim_magic_attack,Magic attack animation: sound $0F + spawn entity $82
+7,CA04,battle_find_alive,Find first alive party member: scan $054D slots 6..0 for != $FF
+7,CA16,battle_find_target,Find targetable enemy: scan $054D for range $19-$1B
+7,CA30,battle_cmd_menu,Command menu: formation bitmask from $8C50/$8C56 -> available commands
+7,CA62,battle_hp_lookup,Battle HP lookup from $8C10 stat table (30 levels)
+7,CA9A,battle_mp_lookup,Battle MP lookup from $8C10+1 stat table (BCD result to $8C-$8E)
+7,CAE1,battle_reward_accum,Reward accumulator: add gold/XP pair to $05C0/$05C1
+3,8C10,battle_stat_table,Battle stat progression (30 x 2B: HP and MP per level 20-255)
+3,8C50,cmd_bitmask_table,Command availability bitmask per formation type (6 bytes)
+3,8CA1,enemy_difficulty,Enemy difficulty modifier (8 entries: subtracted from player level for stat lookup)
+3,B5AB,battle_party_init,Encounter party setup/initialization
+3,B805,battle_action_order,Compute action order (party vs enemy priority)
+3,B826,battle_round_exec,Execute round: resolve party and enemy actions
+3,91C3,battle_state_reset,Reset battle state for cleanup
+3,947F,battle_finalize,Finalize battle screen/display
+7,C6FD,battle_stat_proc,Party stat processing mode 0 (normal update)
+7,C703,battle_stat_proc_1,Party stat processing mode 1 (battle update)
+7,C295,battle_ui_helper,Battle UI/display helper in fixed bank
+4,A07B,entity_hitbox_tbl,Entity hitbox/collision table (32 entries ptr16 -> $A32F+)
+4,A32F,entity_hitbox_data,Hitbox definitions: count + N*(Y-off X-off W H) per entity type
+4,A0BB,entity_comp_subtables,Per-sub-state sprite composition pointer sub-tables
+4,AC00,entity_sprite_comp,Per-frame sprite OAM data: count + N*(Y-off attr tile X-off)
+4,89A7,entity_sprite_render,Entity sprite composition renderer: frame -> OAM shadow buffer $0200
+6,BB1F,chapter_warp_data,Chapter warp init: 50 x 7B records (addr + 5 chapter values) $FF-terminated
+6,B239,w_prefix_retry,W+digit retry handler: after 4 attempts ($0C>=3) call chapter_warp with $87=0 (min items)
+6,B7E6,password_verify,Password format check: W + chapter digit + 6 encoded chars (returns $01=valid prefix $80=invalid)
+6,BC7D,chapter_warp_sentinel,$FF sentinel marking end of warp data
+6,BCA6,ending_state_dispatch,Ending state machine dispatch via indexed_jmp (11 states)
+6,BCC1,ending_state_1,Credits music $63 + screen setup type 0
+6,BCDB,ending_state_3,Scene transition + character animation + jingle $49
+6,BCFF,ending_state_4,Character sprite render + credits music $64
+6,BD30,ending_state_5,Story event music $68 + scroll wait
+6,BD8E,ending_char_render,Character sprite composition for ending scenes
+6,BDD5,ending_char_anim,Character walk animation for ending
+6,BDE6,ending_screen_transition,Screen transition effect (A=type 0-8)
+6,BE19,ending_scroll_wait,Scroll/wait loop for scene transitions
+6,BE3E,ending_state_10,Final 180-frame delay then start credits scroll
+6,BE53,ending_credits_scroll,Credits scroll loop: 1px/4frames text from ($0E) $FF-terminated
+6,BE8A,ending_bank_setup,Bank/CHR mode 0 setup for credits
+6,BF30,ending_load_text,Load next credits text line
+6,BF51,ending_process_entry,Process single credit entry from ($0E)
+6,BFE5,ending_screen_setup,Full screen setup (A=type 0/1/2)
+6,BFDA,ending_render_page,Render current display page ($82=page number)
+5,80AD,entity_extended_check,Extended entity type processing (sets $71 flag for boss types)
+5,893F,entity_std_ai,Standard entity AI handler (patrol/pursue/attack cycle)
+5,8EB8,entity_hit_blink,Hit blink handler (timer countdown + visibility toggle then death check)
+5,8ECB,entity_move_step,Movement step counter (9 steps then grid reposition)
+5,8D45,entity_contact_damage,Contact damage handler (proximity check + player_damage)
+5,8DA4,entity_timed_anim,Timed animation entity (frame-rate blink + death check)
+5,8DCE,entity_spawner,Enemy spawner (timer -> spawn via $F0BE based on $0607)
+5,8E80,entity_timed_emitter,Timed spawner/emitter (random delay from $E0 table)
+5,990D,entity_aggro_ai,Aggressive pursuit enemy AI ($A874 aggro + $A64C movement)
+5,9A81,entity_boss_timer,Boss timer handler (90 frame countdown + phase transitions)
+5,9C7F,entity_npc_companion,NPC/companion handler (12-frame delay + readiness check + interaction)
+5,950A,entity_grid_calc,Entity grid position calculation
+5,994D,entity_ready_check,Entity readiness/movement check
+5,992E,entity_ai_init,Entity AI movement initialization ($0701/$0704 setup)
+5,95F0,entity_boss_minion,Boss minion AI (pursuit via $9001)
+5,9F2B,entity_final_boss,Final boss handler ($90E7 AI + $26 invuln timer + $B0F2 attack)
+5,B612,entity_tile_anim,Tile animation entity (timer -> PPU tile writes)
+5,B748,entity_tile_cycle,Animated tile cycle ($20/$26 tile toggle)
+5,B7F2,entity_scripted_npc,Scripted NPC (fixed position + cutscene states)
+5,B98F,entity_spell_effect,Spell/magic effect entity (checks $0338 flag)

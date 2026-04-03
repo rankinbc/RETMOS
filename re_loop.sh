@@ -115,35 +115,12 @@ IMPORTANT tool rules:
 
 Do not re-document already-covered addresses. Stop after $TASKS tasks."
 
-  echo "\$PROMPT" | claude -p \
-    --output-format stream-json \
-    --max-turns "\$MAX_TURNS" \
-    --allowedTools "\$ALLOWED_TOOLS" \
-    | jq --unbuffered -r '
-        if .type == "assistant" then
-          .message.content[] |
-          if .type == "text" then .text
-          elif .type == "tool_use" then
-            if .name == "Bash" then
-              "  \u25b6 \(.input.command | split("\n")[0] | .[0:120])"
-            elif .name == "Read" then
-              "  \u25b6 Read \(.input.file_path | split("/")[-1])\(if .input.offset then " +\(.input.offset)" else "" end)"
-            elif .name == "Write" then
-              "  \u25b6 Write \(.input.file_path | split("/")[-1])"
-            elif .name == "Edit" then
-              "  \u25b6 Edit \(.input.file_path | split("/")[-1])"
-            elif .name == "Grep" then
-              "  \u25b6 Grep \"\(.input.pattern)\" \(.input.path // "")"
-            elif .name == "Glob" then
-              "  \u25b6 Glob \(.input.pattern)"
-            else
-              "  \u25b6 \(.name) \(.input | keys | join(" "))"
-            end
-          else empty
-          end
-        else empty
-        end
-      ' | tee "$LOG" &
+  echo "$PROMPT" | claude -p \
+    --verbose \
+    --output-format text \
+    --max-turns "$MAX_TURNS" \
+    --allowedTools "$ALLOWED_TOOLS" \
+    2>&1 | tee "$LOG" &
   wait $!
 
   SUMMARY=$(git diff REVERSE.md | grep '^+- \[x\]' | head -1 | sed 's/^+- \[x\] //' || true)

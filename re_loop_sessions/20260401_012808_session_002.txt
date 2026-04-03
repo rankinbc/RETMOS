@@ -1,0 +1,24 @@
+## Summary
+
+Fully traced the **bank 2 $B000 music driver** and the complete NES sound system architecture:
+
+**Music Driver (Bank 2):**
+- Entry `$B000`: calls `$BE81` (4-channel tone sequencer) + `$B73E` (noise channel handler)
+- **33 songs** in pointer table at `$B005`, each with 4 channel pointers (Pulse1/Pulse2/Triangle/Noise)
+- Most songs use Pulse2 only; song #23 is the most complex (Pulse1+Pulse2+Triangle)
+- **18 noise SFX** sequences in table at `$B157`
+- Note period table at `$B189` (40 entries, ~3.3 octaves from A1 to C#5)
+- Sequence format: 4 bytes per note event (volume/duty, duration, period lookup)
+
+**SFX Engine (Bank 0):**
+- `$809E` (sound_main): drains request queue, processes SFX, calls bank 2 music driver
+- `$883F` (play_sound): routes SFX by ID using channel/priority table at `$800E`
+- 62 SFX data records at `$8C02` (stride 8)
+
+**API:**
+- `$E992` (queue_sound): 84 call sites (21 bank 7, 63 bank 6). A=$FF silence, A=$00 nop, else enqueue
+- ZP $F8-$FB: per-frame request bytes cleared after processing
+
+Added 21 new labels to labels.csv, documented full architecture in REVERSE.md.
+
+SESSION_SUMMARY: Traced bank 2 music driver (33 songs, 18 SFX, 4-channel sequencer) and full NMI audio call chain with 84-site queue_sound API.

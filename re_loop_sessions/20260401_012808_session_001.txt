@@ -1,0 +1,19 @@
+That's fine, it'll be harmless. The real memory file is in the right place now.
+
+Task complete. Here's what was accomplished:
+
+**Decoded the full 32-entry CHR bank selection table** at $ED43 and mapped each entry to its game context:
+
+- **Overworld** ($19=0): DataPointer-driven, most commonly $38=$0F (CHR0=$0A/$12)
+- **RPG battle** ($19=5): $38=$05 (CHR0=$10/$09) -- battle-specific sprites and background
+- **Town/shop** ($19=3): DataPointer for town tiles, $38=$06 ($0D/$06) for menu overlay
+- **Dialogue** ($19=7): $38=$03 ($07/$0E) for portraits, $38=$00 for text reset
+- **Transitions** ($19=1,2): $38=$1E ($0B/$14) during warp
+- **Cinematic** ($19=8): $38=$19 ($07/$14)
+- **Game over** ($19=10): $38=$1F ($00/$06)
+
+Identified the `set_chr_mode` routine at $E8C8 (21 call sites across banks 1-3, 6-7), found that $38 is set two ways: dynamically from WorldScreen DataPointer ($B8 AND $3F) during screen loads, and directly via immediate values during mode transitions.
+
+Added 4 new labels to labels.csv (`set_chr_mode`, `battle_screen_setup`, `saved_chr_mode`, `music_chr_save`).
+
+SESSION_SUMMARY: Decoded full 32-entry CHR bank table and mapped CHR 4KB bank pairings to all 12 game modes with 21 call sites identified.
