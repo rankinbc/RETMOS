@@ -1706,6 +1706,18 @@ Shops 0/1 = early-chapter (20s), shop 2 = late-chapter (60s) -- the per-chapter 
 
 Decoded by `tools/dump_shops.py`. NOTE: the literal item-NAME strings are **not** a flat code-indexed table -- they are baked into each shop's text-entry screen layout. The code byte is the ownership-array index + category, not a name-string pointer.
 
+##### The $03C0 ownership array
+
+The shop code's low nibble indexes this array (`tools/map_item_array.py`):
+
+- **Layout**: `$03C0-$03DF`, **11 logical entries** (index 0-10), **stride 2 bytes**. Slot = `$03C0 + (code & $0F)*2`.
+- **Value** = ownership flag: set to `1` on acquisition (bank 1 `$8AC0`: `LDA #$01; STA $03C0,Y`), read as "already owned?" (`$8AA1`) so spells/key items can't be rebought.
+- **Parallel arrays** (same 11-entry index space): `$0335,X` = per-item unlock/availability flag (menu skips locked entries); `$8AAC[idx]` = magic-shop base price (11 entries: 20,30,40,20,40,30,20,40,30,40,50, x chapter via `$8B89`).
+- **Menu display** (bank 1 `$AA50`): loops index 0..10, draws an "owned" marker (tile `$0D`) next to entries where `$03C0,X` is nonzero. Item names are drawn from the menu's text-layout template at fixed positions -- so the index->name binding is **positional in the menu template**, still not a flat code->name table.
+- **Distinct from the EP-learned spell flags** at `$0323-$0329` (the `$0320` region: BOLTTOR1-3/FLAMOL1-3/PAMPOO, set by level-up, see Spell Progression). `$03C0` is the separately-tracked shop/quest-item ownership set.
+
+**Result**: the array is fully mapped *structurally* (11 ownership flags + parallel unlock/price arrays). Binding each index to a literal name requires reading the magic-menu text template's name layout -- a contained follow-up, not a hidden table.
+
 **Full shop pricing pipeline (all bank 1):**
 
 | Addr | Role |

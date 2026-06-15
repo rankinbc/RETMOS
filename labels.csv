@@ -495,4 +495,7 @@ bank,addr,name,comment
 1,A736,gold_spend,Animated gold change (carry=spend) -> $EBDD; single gold-spend chokepoint
 1,8A9A,shop_owned_check,Shop already-owned check: ($04D5 & $0F)*2 -> $03C0,Y ownership array (spells not rebuyable)
 1,8AAC,shop_magic_price_tbl,Magic-shop base price table (11 entries) indexed by code low nibble; x chapter via $8B89
-*,03C0,item_ownership_array,Spell/item ownership-count array; shop item code low nibble indexes here (x2)
+*,03C0,item_ownership_array,Shop/quest-item ownership flags: 11 entries stride 2, idx=code&$0F; set=1 on buy ($8AC0)
+*,0335,item_unlock_array,Per-item unlock/availability flags (11 entries) paralleling $03C0; menu skips if 0
+1,8AB7,item_acquire,Set ownership flag: ($04D5 & $0F)*2 -> $03C0,Y = 1 (item/spell acquired)
+1,AA50,item_menu_markers,Magic/item menu: loop idx 0-10, draw owned marker (tile $0D) where $03C0,X set
