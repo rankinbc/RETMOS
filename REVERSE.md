@@ -1716,7 +1716,9 @@ The shop code's low nibble indexes this array (`tools/map_item_array.py`):
 - **Menu display** (bank 1 `$AA50`): loops index 0..10, draws an "owned" marker (tile `$0D`) next to entries where `$03C0,X` is nonzero. Item names are drawn from the menu's text-layout template at fixed positions -- so the index->name binding is **positional in the menu template**, still not a flat code->name table.
 - **Distinct from the EP-learned spell flags** at `$0323-$0329` (the `$0320` region: BOLTTOR1-3/FLAMOL1-3/PAMPOO, set by level-up, see Spell Progression). `$03C0` is the separately-tracked shop/quest-item ownership set.
 
-**Result**: the array is fully mapped *structurally* (11 ownership flags + parallel unlock/price arrays). Binding each index to a literal name requires reading the magic-menu text template's name layout -- a contained follow-up, not a hidden table.
+**Result**: the array is fully mapped *structurally* (11 ownership flags + parallel unlock/price arrays).
+
+**Name binding -- traced to the source, and there is no index->name table.** The menu screen is built by the state machine at bank 1 `$AA00` (dispatch on `$04C0`): state 2 (`$AA38`) sets palette via `$B707` then runs the marker loop `$AA50`; the name list is drawn by `$B3D3`, which copies null-terminated **tile/glyph layout strings** to the nametable buffer `$0163`. The string pointer table is `$B4BA` (bank 1). Decoded via `tools/decode_menu_names.py` -- entry 5 reads literally "CHAPTER" (confirms the tile decode), and entries are PPU-positioned strings mixing literal A-Z tiles with raw CHR glyph tiles (`$8B-$FF`, written verbatim -- pre-rendered name/icon graphics, not dictionary tokens). So menu/shop item names are **drawn positionally as CHR-tile layout strings**, not looked up from any code->name or index->name table. This is the definitive answer: the array indices carry ownership/price; the names live in the screen layout. `$B707` is palette setup (not name rendering).
 
 **Full shop pricing pipeline (all bank 1):**
 

@@ -499,3 +499,7 @@ bank,addr,name,comment
 *,0335,item_unlock_array,Per-item unlock/availability flags (11 entries) paralleling $03C0; menu skips if 0
 1,8AB7,item_acquire,Set ownership flag: ($04D5 & $0F)*2 -> $03C0,Y = 1 (item/spell acquired)
 1,AA50,item_menu_markers,Magic/item menu: loop idx 0-10, draw owned marker (tile $0D) where $03C0,X set
+1,AA00,item_menu_dispatch,Item/magic menu state machine (dispatch on $04C0; states $AA11/$AA20/$AA38/...)
+1,B3D3,menu_text_render,Render menu name row: A*2 -> $B4BA ptr -> copy null-term tile string to $0163 buffer
+1,B4BA,menu_text_ptrs,Menu name/layout string pointer table (PPU-positioned CHR-tile strings; e.g. "CHAPTER")
+1,B707,menu_palette_setup,Menu palette setup (writes $04A0 palette buffer via $B74C/$B7B0/$B83A tables)
