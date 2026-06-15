@@ -481,3 +481,8 @@ bank,addr,name,comment
 2,AB06,script_vm_op_branch,Op9: compare game var to immediate, 3-way branch (<,=,>) with optional write-back (gold/price/inventory checks)
 2,AB84,script_vm_op_numinput,Op11: numeric input - shop buy-quantity digit entry via $C2 buttons
 2,AA78,script_vm_op_store,Op5: store byte to resolved game-state addr (item delivery / flag set)
+2,AA08,script_vm_run,Script VM bootstrap (bank 2 jtable entry 9 / $8012): runs script at $CE/$CF
+2,B800,script_data,VM script bytecode region ($B800-$BFFF): 37 story/cutscene event scripts (NOT shops)
+1,810D,script_driver,Bank 1 VM driver: select script via $82 (master $8B32) + $04E1, set $CE/$CF, dispatch bank2 entry 9
+1,8B32,script_master_table,Master script-table pointers (5 screen types) -> sub-tables $9046/$9058/$9066/$9078/$9088
+1,9046,script_subtable_t0,Type-0 script pointer sub-table (entry points into bank 2 $B800+)
