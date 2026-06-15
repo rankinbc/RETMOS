@@ -466,3 +466,6 @@ bank,addr,name,comment
 5,B748,entity_tile_cycle,Animated tile cycle ($20/$26 tile toggle)
 5,B7F2,entity_scripted_npc,Scripted NPC (fixed position + cutscene states)
 5,B98F,entity_spell_effect,Spell/magic effect entity (checks $0338 flag)
+3,9524,inv_slot_indexer,16-byte indexer (4 groups x 4 entries) mapping (group*4 + RNG&3) to slot 0-7 in inv_slot_table
+3,9534,inv_slot_table,8 records x 4B (addr_lo addr_hi=$03 max_value slot_idx). Inventory variable + cap for pickup handler
+3,94B0,inv_pickup_handler,Item pickup/reward: RNG-select slot from $9524 -> $9534 lookup -> INC variable if <max -> mirror to $0515+X if slot>=6

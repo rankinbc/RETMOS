@@ -2306,6 +2306,8 @@ Several sub-state addresses are reused across modes:
 - [x] Trace bank 7 $CA04 battle command system -- 6 functions: $CA04 find alive party member (scan $054D != $FF), $CA16 find targetable enemy ($054D in $19-$1B), $CA30 command menu (formation bitmask from $8C50/$8C56 tables), $CA62/$CA9A HP/MP lookup from 30-level stat table at $8C10 (HP 20-255, MP 10-255), $CAE1 reward accumulator ($05C0/$05C1 gold/XP). Difficulty modifier at $8CA1 (8 entries per enemy type)
 - [x] Identify bank 0 $B000 display callers -- 9 call sites via dispatch sled $E006 (bank 0 entry 2). A parameter = sound/screen mode: $4F=chapter title, $5F=dungeon entry, $60=town entry, $65=victory, $66/$67=game clear, $0F=status. Called from bank 7 $CFA6 (battle), $D170 (chapter), $D1E4 (clear), $D26E (victory), $D4D0/$D4F9 (area entry), $D590 (generic), $D5A2 (follow-up)
 - [ ] Map bank 0 $B3A0-$BAFF screen data (nametable layouts for display_render_entry)
+- [x] Decode "shop tables" at file offset 0xD534/0xD544 -- NOT shops. Bank 3 $9534 is the inventory-pickup max-cap table (8 entries x 4B: addr_lo, $03, max, slot_idx) read by `inv_pickup_handler` at $94B0. Bank 3 $9524 is a 16-byte indexer for randomized reward groups. Verified: slot 0 cap=15 matches STARDUST max, slots 5/6/7 caps match $0300/$0306/$0307 documented maxes. External editor tools mislabel this as "shop inventory."
+- [ ] Find and decode bank 2 shop bytecode interpreter -- entered from bank 6 mode3_npc ($818A) when $03CC=shop_flag. Handles per-shop inventory, prices, item delivery, and the bytecode-managed item counts (CARPET, R.SEED, HORN, HAMMER, RING). Required to make shop items/prices customizable.
 
 ### RE vs GameFAQ Guide Comparison
 
@@ -2414,6 +2416,25 @@ HUD bottom-right displays: $0306(BREAD), $0307(MASHROOB), $0308(KEY), $0309(AMUL
 | RING | 1 | (bank 2 bytecode) | Guide value only |
 
 CARPET, R.SEED, HORN, HAMMER, RING counts are managed by the bank 2 shop/inventory bytecode interpreter, not at fixed $0300+ addresses. Their max counts come from the guide and couldn't be independently verified in ROM without tracing the bytecode system.
+
+**Inventory-increment / max-cap table (bank 3 $9534, file offset 0xD544):**
+
+8 records x 4 bytes. Read by `inv_pickup_handler` at bank 3 $94B0. Format: `addr_lo, $03, max_value, slot_idx`. The first two bytes form a pointer to the RAM inventory variable in the $03xx page. Routine: copy 4B to $00-$03, then `LDA ($00),Y` to read current value; if `< $02` (max), `STA ($00),Y` writes incremented value; if `slot_idx >= 6` also `INC $0515,X` to mirror into party slot.
+
+| Slot | Bytes | Pointer | Max | Variable |
+|------|-------|---------|-----|----------|
+| 0 | `11 03 0F 00` | $0311 | 15 | STARDUST charges (matches REVERSE max=15) |
+| 1 | `0F 03 01 01` | $030F | 1 | ROD charges (cap=1 here vs warp max=5; pickup gives +1 only) |
+| 2 | `10 03 01 02` | $0310 | 1 | FLAME charges |
+| 3 | `01 03 01 03` | $0301 | 1 | Gortrat mashroob counter |
+| 4 | `12 03 05 04` | $0312 | 5 | Max MP/power |
+| 5 | `00 03 09 05` | $0300 | 9 | Gortrat bread counter (matches max=9) |
+| 6 | `06 03 0A 06` | $0306 | 10 | BREAD (matches max=10, mirrors to $0515) |
+| 7 | `07 03 0A 07` | $0307 | 10 | MASHROOB (matches max=10, mirrors to $0516) |
+
+**16-byte indexer at bank 3 $9524 (file offset 0xD534):** maps a `(group * 4) + (RNG AND $03)` selector to a slot 0-7. 4 groups of 4 entries: `{0,1,6,7}, {0,1,5,2}, {0,1,3,4}, {0,1,3,2}`. Used by the same handler to randomize which item drops within a reward group.
+
+**Critical note:** This table is NOT the shop slot table. Real shop transactions are handled by the bank 2 bytecode interpreter (see Next Tasks). External editor tools labeling 0xD544 as "shop inventory" are misinterpreting it -- byte 0 is a RAM pointer low-byte, not an item ID, and byte 2 is a max-cap, not a price.
 
 **12. Spell MP Costs: UNVERIFIED (embedded in handlers)**
 - Guide costs: OPRIN=5, PAMPOO=2, BOLTTOR1=4, DEFENEE=2, FLAMOL1=20, BOLTTOR2=15, BOLTTOR3=20, FLAMOL2=25, FLAMOL3=30, CORBOCK=2, SHRINK=2, CARABA=20, RAMIPAS=10, MARITA=4
