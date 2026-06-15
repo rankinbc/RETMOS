@@ -486,3 +486,10 @@ bank,addr,name,comment
 1,810D,script_driver,Bank 1 VM driver: select script via $82 (master $8B32) + $04E1, set $CE/$CF, dispatch bank2 entry 9
 1,8B32,script_master_table,Master script-table pointers (5 screen types) -> sub-tables $9046/$9058/$9066/$9078/$9088
 1,9046,script_subtable_t0,Type-0 script pointer sub-table (entry points into bank 2 $B800+)
+1,94ED,shop_pointer_table,Shop-pointer table: 8 shops x ptr16 indexed by shop id $04E1 -> shop data
+1,94FD,shop_data,Shop inventory: 8 shops x 4 slots x [code price] (byte0=item code byte1=price)
+1,8680,shop_inv_read,Read shop/cmd 2-byte record via ($0C/$0D),Y -> $04D5 (code) $04D6 (price); slot=$04D8*2
+1,A5A0,shop_price_total,Shop total = price x quantity (qty table $A3CB,X) -> $04D2
+1,A33B,shop_haggle,Shop haggle/price adjustment (BCD math on gold $89 + price)
+1,8A71,shop_magic_price,Magic-shop chapter-scaled price ($0540,Y x chapter via $8B89)
+1,A736,gold_spend,Animated gold change (carry=spend) -> $EBDD; single gold-spend chokepoint

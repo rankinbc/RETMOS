@@ -1675,7 +1675,39 @@ Tools: `dis_script.py <bank> <addr>` disassembles a VM script; `scan_scripts.py`
 
 **Finding -- these 37 scripts are STORY/CUTSCENE events, not shops:** scanning all 37 shows only SOUND/WINDOW/TEXTINIT/LOADTEXT/IF/STORE/CALL/JUMP opcodes, with IF conditions branching on progress flags `$03E0-$03E4` (chapter/event completion). **No `NUMINPUT` (op11) and no STOREs to item-count addresses ($0306+) appear** -- so the player-facing shop *purchase* transaction is NOT driven by this bank-1 script set. Example (script type 0 entry 0, $B800): `SOUND $5F; WINDOW; BLOCK $BC06; IF [$033E]==1; SOUND $49; STORE [$033E]=1; STORE [$0490]=9; ...` -- a scripted scene, not a store.
 
-The VM and its opcodes (incl. op11 NUMINPUT, op9 with item/gold write-back) are real, but the shop buy-loop must be reached by a different entry (likely the shopkeeper entity $36 / bank 6 mode3_npc path or dialogue-text inline commands), not the bank-1 `$810D` event driver. See refined Next Task.
+The VM and its opcodes (incl. op11 NUMINPUT, op9 with item/gold write-back) are real and drive cutscenes/dialogue/password, but the shop buy-loop is NOT a VM script. **The real shop inventory and pricing are flat tables in bank 1 -- see next section.**
+
+#### Shop Inventory & Pricing (bank 1) -- VERIFIED
+
+The shop system is **not** bytecode and **not** in bank 2. It is a pair of flat tables in **bank 1**, confirmed against the ROM. This definitively corrects both the old "shop tables at file offset $D544" claim (that's the bank 3 inventory max-cap table) and the bank-2 bytecode dead-end.
+
+**Shop-pointer table `$94ED`** -- 8 entries x 2-byte LE pointers, indexed by shop id `$04E1`. Exactly 8 shops. Entries point to `$94FD, $9505, $950D, $9515, $951D, $9525, $952D, $9535` (8 bytes apart).
+
+**Shop data `$94FD+`** -- each shop = **4 slots x 2 bytes** (the "4 items per visit"). Slot format = **`[code, price]`**: byte0 = item/name code, byte1 = price. Read at `$8680` into `$04D5` (code) / `$04D6` (price), slot index from `$04D8`*2.
+
+Decoded shops (price in decimal, chapter-scaled):
+
+| Shop | Ptr | Codes | Prices |
+|------|-----|-------|--------|
+| 0 | $94FD | 33 34 10 53 | 20 20 40 40 |
+| 1 | $9505 | 33 34 52 51 | 20 20 20 100 |
+| 2 | $950D | 33 34 52 51 | 60 60 60 100 |
+| 3 | $9515 | 52 10 53 11 | 20 40 40 40 |
+| 4 | $951D | 33 34 52 58 | 20 20 20 88 |
+
+Shops 0/1 = early-chapter (20s), shop 2 = late-chapter (60s) -- the per-chapter pricing. Recurring codes `33/34/52/51` are the staple item set (bread/mashroob/carpet/etc.; cf. $0306 BREAD, $0307 MASHROOB).
+
+**Full shop pricing pipeline (all bank 1):**
+
+| Addr | Role |
+|------|------|
+| `$94ED` | Shop-pointer table (indexed by shop id `$04E1`) |
+| `$94FD` | Shop data: 8 shops x 4 slots x `[code, price]` |
+| `$8680` | Inventory read -> `$04D5` (code), `$04D6` (price) |
+| `$A5A0` | Total = price x quantity (qty table `$A3CB,X`) -> `$04D2` |
+| `$A33B` | Haggle / price adjustment (BCD math on gold `$89` + price) |
+| `$8A71` | Magic-shop path: chapter-scaled price (`$0540,Y` x chapter via `$8B89`) |
+| `$A736` | Animated gold change (carry set = spend) -> `$EBDD` -- the single spend chokepoint |
 
 **Key RAM Addresses (text system):**
 
@@ -2382,7 +2414,7 @@ Several sub-state addresses are reused across modes:
 - [x] Decode "shop tables" at file offset 0xD534/0xD544 -- NOT shops. Bank 3 $9534 is the inventory-pickup max-cap table (8 entries x 4B: addr_lo, $03, max, slot_idx) read by `inv_pickup_handler` at $94B0. Bank 3 $9524 is a 16-byte indexer for randomized reward groups. Verified: slot 0 cap=15 matches STARDUST max, slots 5/6/7 caps match $0300/$0306/$0307 documented maxes. External editor tools mislabel this as "shop inventory."
 - [x] Find and decode bank 2 shop bytecode interpreter -- it's a general-purpose 14-opcode **script VM** (main loop $AA1D, jump table $AC9D, script ptr $CE/$CF) driving dialogue + shops + password screen + events. Opcodes: 0=block list, 1=sound, 2=CHR, 3=jump, 4=call, 5=store-byte, 6=text box, 7=text init, 8=load text entry, 9=compare&3-way-branch (+write-back), 10=window type, 11=numeric input (buy quantity), 12=pwd check, 13=return. Operand addressing via $ACF8 base table ($0300=item/game state). **Shop scripts are bytecode in the CHR-ROM text database** (banks 22-24), not a flat table -- explains why editors couldn't find them. Item counts (CARPET/R.SEED/HORN/HAMMER/RING) manipulated by op5/op9 at $0300+. Entry via bank 6 $818A (entity $36).
 - [x] Decode VM script storage + driver -- scripts are byte-streams in bank 2 PRG $B800-$BFFF; bank 1 $810D driver selects via $82 (master table $8B32 -> sub-tables $9046/$9058/$9066/$9078/$9088) + sub-index $04E1; 37 scripts total. Built dis_script.py + scan_scripts.py. FINDING: all 37 are story/cutscene event scripts (IF on progress flags $03E0-$03E4), NO NUMINPUT and NO item-count STOREs -- the shop BUY transaction is NOT in this set.
-- [ ] Find the actual shop buy-loop -- NOT the bank-1 $810D event scripts (those are cutscenes). Trace forward from bank 6 mode3_npc ($818A, $03CC=shop) / shopkeeper entity $36 (bank 5) to find where gold is deducted and item counts ($0306 BREAD, $0307 MASHROOB, CARPET/R.SEED/HORN/HAMMER/RING) are incremented. Check whether shop runs a VM script from a different pointer table, or dialogue-text inline commands ($50-$6F), or dedicated bank 6 code. Search: writes to $0306/$0307 outside inv_pickup_handler; gold ($05C0/$05C1) decrement sites.
+- [x] Find the actual shop buy-loop -- RESOLVED: shops are flat tables in **bank 1**, NOT bytecode. Shop-pointer table $94ED (8 shops x ptr16, indexed by $04E1) -> shop data $94FD (4 slots x [code, price]). Pipeline: $8680 read -> $A5A0 price*qty -> $A33B haggle (BCD) -> $8A71 magic-shop chapter scaling -> $A736 animated gold spend ($EBDD chokepoint). Verified shop 0 = codes 33/34/10/53 @ 20/20/40/40. See "Shop Inventory & Pricing (bank 1)" section. Corrects both the $D544 and bank-2 claims.
 
 ### RE vs GameFAQ Guide Comparison
 
@@ -2483,14 +2515,14 @@ HUD bottom-right displays: $0306(BREAD), $0307(MASHROOB), $0308(KEY), $0309(AMUL
 | MASHROOB | 10 | $0307 | YES (warp data max=10) |
 | KEY | 9 | $0308 | YES (guide), auto-DEC at $F2CB |
 | AMULET | 9 | $0309 | YES (guide), auto-use at $87F4 |
-| CARPET | 15 | (bank 2 bytecode) | Guide value only |
-| R.SEED | 5 | (bank 2 bytecode) | Guide value only |
-| HORN | 5 | (bank 2 bytecode) | Guide value only |
-| HAMMER | 5 | (bank 2 bytecode) | Guide value only |
+| CARPET | 15 | $0300+ (via pickup) | Guide value |
+| R.SEED | 5 | $0300+ (via pickup) | Guide value |
+| HORN | 5 | $0300+ (via pickup) | Guide value |
+| HAMMER | 5 | $0300+ (via pickup) | Guide value |
 | MAP | 1 | $030A (flag) | YES (checked extensively in banks 4/5/6) |
-| RING | 1 | (bank 2 bytecode) | Guide value only |
+| RING | 1 | $0300+ (via pickup) | Guide value |
 
-CARPET, R.SEED, HORN, HAMMER, RING counts are managed by the bank 2 shop/inventory bytecode interpreter, not at fixed $0300+ addresses. Their max counts come from the guide and couldn't be independently verified in ROM without tracing the bytecode system.
+CARPET, R.SEED, HORN, HAMMER, RING are bought from the **bank 1 shop tables** ($94ED/$94FD, see "Shop Inventory & Pricing"), not a bank 2 bytecode interpreter (that earlier claim was wrong -- the bank 2 VM only drives cutscenes/dialogue). Item delivery on purchase/pickup goes through `inv_pickup_handler` (bank 3 $94B0) with per-item max caps in the $9534 table; max counts for these five come from the guide.
 
 **Inventory-increment / max-cap table (bank 3 $9534, file offset 0xD544):**
 
