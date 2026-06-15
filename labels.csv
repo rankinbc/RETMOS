@@ -469,3 +469,7 @@ bank,addr,name,comment
 3,9524,inv_slot_indexer,16-byte indexer (4 groups x 4 entries) mapping (group*4 + RNG&3) to slot 0-7 in inv_slot_table
 3,9534,inv_slot_table,8 records x 4B (addr_lo addr_hi=$03 max_value slot_idx). Inventory variable + cap for pickup handler
 3,94B0,inv_pickup_handler,Item pickup/reward: RNG-select slot from $9524 -> $9534 lookup -> INC variable if <max -> mirror to $0515+X if slot>=6
+0,B3A0,screen_text_streams,32 text-layout command streams for status/results/info screens ($2F-terminated)
+0,BBA1,screen_data_index,32 x 2B index table (byte0=page/flags byte1=lo offset) -> stream addr in $B3A0-$BAFF
+0,B0D9,screen_stream_interp,Layout stream interpreter: $2E=row $2F=end $30-$49=A-Z $80-$8F=dynamic insert $8B+=raw tile
+0,B241,screen_value_insert,Dynamic value insert handler ($80-$8F): A&$0F -> inline jump table at $B24C, inserts game state into screen text

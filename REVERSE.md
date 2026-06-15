@@ -769,7 +769,8 @@ Bank 0 serves dual purposes: the lower half ($8000-$AFFF) is the SFX engine and 
 | $8D17-$8E08 | 242B | SFX overlay channel data + short sequence fragments |
 | $8E09-$AFFF | 8695B | SFX sequence data (multi-channel jingles + long effects) |
 | $B000-$BBA1 | 2978B | Display rendering engine (screen/nametable building code) |
-| $BBA2-$BBE1 | 64B | Screen data index table (packed address + flags) |
+| $B3A0-$BBA1 | ~2KB | Screen text-layout streams (32 status/results templates, $2F-terminated) |
+| $BBA1-$BBE1 | 64B | Screen data index table (32 x 2B: page/flags + lo offset) |
 | $BBE2-$BF8D | 940B | Display subroutines + helper data |
 | $BF8E-$BFFF | 114B | $FF padding (unused) |
 
@@ -841,6 +842,30 @@ The $B000 entry point is reached via bank_trampoline ($E9DD) with A=0 (switching
 - Uses nametable tile buffer ($0500+) and PPU addressing through fixed-bank helpers ($DDEA, $DE5B, $DF79)
 - Multi-frame operation with wait_nmi synchronization
 - Internal jump table at $BD0D dispatches via indexed_jmp ($E97D) to 6 sub-handlers at $BF09-$BE45
+
+##### Screen Data: index table $BBA1 + layout streams $B3A0-$BAFF
+
+The $B3A0-$BAFF region is a packed blob of 32 **text-layout command streams** (status/results/info screens), addressed via the 2-byte index table at $BBA1.
+
+**Index entry** (entry `i` at `$BBA1 + 2i`, indexed by screen_param*2 in $0422):
+- byte0 (`$BBA1,X`): bits 0-2 = page offset (+$B3), bits 3-4 = vertical-offset selector into $B1F1 (4 entries: $00,$09,$0B,...), bits 5-7 = flags (bit7/6/5 control border/centering paths)
+- byte1 (`$BBA2,X`): low offset (+$A0)
+- Stream address = `(($B3 + (byte0 & 7) + carry) << 8) | (($A0 + byte1) & $FF)`
+
+**Stream command format** (interpreter at $B0D9):
+| Byte | Meaning |
+|------|---------|
+| $2F | End of stream |
+| $2E | Row advance (INC $0423, next nametable row) |
+| $2C | Space (stored to buffer $0168) |
+| $2D | Emit `$4F` ('-') + terminate row |
+| $30-$49 | Letters A-Z (stored directly) |
+| $00-$09 | Digits 0-9 |
+| $0A-$2B | PPU-write/positioning commands (`ADC #$E0` -> $B331 tile writer) |
+| $80-$8F | **Dynamic value insert** via $B241 (A&$0F -> inline jump table at $B24C, 16 sub-handlers). Insert player/game state: HP/MP from $0501, item counts from $0503/$0504, battle vars from $05CC etc. |
+| $8B-$FF | Raw tile index (border/icon/pre-composed word glyphs from CHR page) stored directly |
+
+**Content** (decoded via `tools/dump_screendata.py`): item/equipment names (SHOT, ARROW, ROD, ARMORS), stat labels (EXPERIENCE POINTS), enemy/boss army names (GIGADA, CYTRO, GAZEI, GANGA, MEDUSA, GORGON at stream 0 / $B953), and spell/event result text. Streams overlap and chain through the shared blob -- the index just selects an entry point. These are the templates the display module renders for chapter-title, victory, game-clear, and status screens.
 
 **Callers (9 call sites via dispatch sled $E006 -> bank 0 entry 2):**
 
@@ -2305,7 +2330,7 @@ Several sub-state addresses are reused across modes:
 - [x] Map bank 3 spell/attack system -- Formation-based tactical combat (not HP subtraction). Attack params at $046E-$0472 (flag/anim/display/target/crit). Hit check $CC43 with RNG $CE8D. Effectiveness tables at $8A26/$8A43 (29 entries: palette group + tile for damage display). Spell setup $A553 (MP check + target resolve). Commands: $02=attack, $0C-$0E=LIBCOM/MONECOM/MOSCOM formations, $10=enhanced, $15/$17=shields
 - [x] Trace bank 7 $CA04 battle command system -- 6 functions: $CA04 find alive party member (scan $054D != $FF), $CA16 find targetable enemy ($054D in $19-$1B), $CA30 command menu (formation bitmask from $8C50/$8C56 tables), $CA62/$CA9A HP/MP lookup from 30-level stat table at $8C10 (HP 20-255, MP 10-255), $CAE1 reward accumulator ($05C0/$05C1 gold/XP). Difficulty modifier at $8CA1 (8 entries per enemy type)
 - [x] Identify bank 0 $B000 display callers -- 9 call sites via dispatch sled $E006 (bank 0 entry 2). A parameter = sound/screen mode: $4F=chapter title, $5F=dungeon entry, $60=town entry, $65=victory, $66/$67=game clear, $0F=status. Called from bank 7 $CFA6 (battle), $D170 (chapter), $D1E4 (clear), $D26E (victory), $D4D0/$D4F9 (area entry), $D590 (generic), $D5A2 (follow-up)
-- [ ] Map bank 0 $B3A0-$BAFF screen data (nametable layouts for display_render_entry)
+- [x] Map bank 0 $B3A0-$BAFF screen data -- 32 text-layout command streams (status/results/info screen templates) indexed by 2-byte table at $BBA1. Interpreter at $B0D9: $2F=end, $2E=row advance, $30-$49=A-Z, $00-$09=digits, $0A-$2B=PPU positioning, $80-$8F=dynamic value insert (HP/MP/item counts via $B241 jump table), $8B-$FF=raw border/icon tiles. Content: item names, EXPERIENCE POINTS, enemy army names (GIGADA/CYTRO/MEDUSA/GORGON), spell result text. Tool: dump_screendata.py
 - [x] Decode "shop tables" at file offset 0xD534/0xD544 -- NOT shops. Bank 3 $9534 is the inventory-pickup max-cap table (8 entries x 4B: addr_lo, $03, max, slot_idx) read by `inv_pickup_handler` at $94B0. Bank 3 $9524 is a 16-byte indexer for randomized reward groups. Verified: slot 0 cap=15 matches STARDUST max, slots 5/6/7 caps match $0300/$0306/$0307 documented maxes. External editor tools mislabel this as "shop inventory."
 - [ ] Find and decode bank 2 shop bytecode interpreter -- entered from bank 6 mode3_npc ($818A) when $03CC=shop_flag. Handles per-shop inventory, prices, item delivery, and the bytecode-managed item counts (CARPET, R.SEED, HORN, HAMMER, RING). Required to make shop items/prices customizable.
 
