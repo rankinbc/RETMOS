@@ -493,3 +493,6 @@ bank,addr,name,comment
 1,A33B,shop_haggle,Shop haggle/price adjustment (BCD math on gold $89 + price)
 1,8A71,shop_magic_price,Magic-shop chapter-scaled price ($0540,Y x chapter via $8B89)
 1,A736,gold_spend,Animated gold change (carry=spend) -> $EBDD; single gold-spend chokepoint
+1,8A9A,shop_owned_check,Shop already-owned check: ($04D5 & $0F)*2 -> $03C0,Y ownership array (spells not rebuyable)
+1,8AAC,shop_magic_price_tbl,Magic-shop base price table (11 entries) indexed by code low nibble; x chapter via $8B89
+*,03C0,item_ownership_array,Spell/item ownership-count array; shop item code low nibble indexes here (x2)

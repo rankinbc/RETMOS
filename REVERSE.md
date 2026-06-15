@@ -1695,7 +1695,16 @@ Decoded shops (price in decimal, chapter-scaled):
 | 3 | $9515 | 52 10 53 11 | 20 40 40 40 |
 | 4 | $951D | 33 34 52 58 | 20 20 20 88 |
 
-Shops 0/1 = early-chapter (20s), shop 2 = late-chapter (60s) -- the per-chapter pricing. Recurring codes `33/34/52/51` are the staple item set (bread/mashroob/carpet/etc.; cf. $0306 BREAD, $0307 MASHROOB).
+Shops 0/1 = early-chapter (20s), shop 2 = late-chapter (60s) -- the per-chapter pricing. Shops 5/6/7 mirror 1/2/3 (chapter variants).
+
+**Item code byte structure** (decoded at bank 1 $8A9A / $8A71): the code is `category:index`.
+- **Low nibble** (`code & $0F`) = item index into the `$03C0` ownership/count array. `$8A9A`: `LDA $04D5; AND #$0F; ASL; TAY; LDA $03C0,Y` is the "already owned?" check (spells can't be rebought).
+- **High nibble** = category: `$1x`/`$3x` = regular consumable item, `$5x` = spell.
+- Recurring `$33`(item/3) and `$34`(item/4) are the staple consumables (bread/mashroob; cf. $0306/$0307); `$51`/`$52`/`$53`/`$58` are spells.
+
+**Magic-shop pricing**: instead of the table's byte1, magic shops scale a base price from `$8AAC[code & $0F]` (`20,30,40,20,40,30,20,40,30,40,50`) by chapter via the `$8B89` multiply.
+
+Decoded by `tools/dump_shops.py`. NOTE: the literal item-NAME strings are **not** a flat code-indexed table -- they are baked into each shop's text-entry screen layout. The code byte is the ownership-array index + category, not a name-string pointer.
 
 **Full shop pricing pipeline (all bank 1):**
 
