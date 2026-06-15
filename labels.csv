@@ -473,3 +473,11 @@ bank,addr,name,comment
 0,BBA1,screen_data_index,32 x 2B index table (byte0=page/flags byte1=lo offset) -> stream addr in $B3A0-$BAFF
 0,B0D9,screen_stream_interp,Layout stream interpreter: $2E=row $2F=end $30-$49=A-Z $80-$8F=dynamic insert $8B+=raw tile
 0,B241,screen_value_insert,Dynamic value insert handler ($80-$8F): A&$0F -> inline jump table at $B24C, inserts game state into screen text
+2,AA1D,script_vm_loop,Script VM main loop: fetch opcode from ($CE) -> jump table $AC9D -> dispatch. Drives dialogue/shop/password/events
+2,AC9D,script_vm_optable,Script VM opcode jump table (14 x ptr16). op5=store op9=compare/branch op11=numeric input
+2,ACBD,script_vm_read_operands,Read X operand bytes from script ($CE),Y into scratch $04D0+ then advance $CE
+2,ACE6,script_vm_resolve_addr,Resolve operand to target addr: hi3 bits -> $ACF8 base table, lo5 -> offset
+2,ACF8,script_vm_addrbases,Address-space base table (8 x ptr16): $00A0 $0300 $0320 $0080 $0480 $03E0. $0300=item/game state
+2,AB06,script_vm_op_branch,Op9: compare game var to immediate, 3-way branch (<,=,>) with optional write-back (gold/price/inventory checks)
+2,AB84,script_vm_op_numinput,Op11: numeric input - shop buy-quantity digit entry via $C2 buttons
+2,AA78,script_vm_op_store,Op5: store byte to resolved game-state addr (item delivery / flag set)

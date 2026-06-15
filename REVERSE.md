@@ -1626,8 +1626,46 @@ Each entry is 6 bytes, indexed by text_id * 6:
 | $A9CA-$A9DD | 20B | Position data table (4 entries x 4B: PPU addr + dimensions per text box type) |
 | $A9DE-$ABFF | 546B | Text processing: line wrapping, scroll handling, text box management |
 | $AC00-$AC36 | 55B | `pwd_secret_check` -- CHOCOLA/CORONYA password comparison ($AC08) + table ($AC27) |
-| $AC37-$AF06 | 720B | Additional text/display code (bytecode interpreter for password screen, text box drawing) |
+| $AC37-$AF06 | 720B | Script VM opcode handlers + helpers (see Script VM section) |
 | $AF07-$AFFF | 249B | Zero padding (unused) |
+
+#### Bank 2 Script VM (dialogue / shop / password / events)
+
+The bank 2 "bytecode interpreter" is a general-purpose **script virtual machine** that drives NPC dialogue, shop transactions, the password/continuation screen, and scripted events. The shop logic editors couldn't find is **script bytecode embedded in the CHR-ROM text database** (banks 22-24), interpreted by this VM -- not a flat table. Shop entry: bank 6 `mode3_npc` ($818A) with `$03CC`=shop_flag spawns shopkeeper entity $36; the dialogue/shop script is then run by this VM.
+
+**Main loop ($AA1D `script_vm_loop`):**
+```
+LDY #0; LDA ($CE),Y    ; fetch opcode (script ptr = $CE/$CF)
+ASL A; TAX             ; opcode * 2
+LDA $AC9D,X -> $0E/$0F ; handler addr from jump table $AC9D
+JSR $ACCC              ; advance $CE past opcode byte
+JMP ($000E)            ; dispatch to handler; handler JMPs back to $AA1D
+```
+
+**Operand helpers:** `$ACBD` reads X operand bytes from script into scratch `$04D0+` (advancing $CE). `$ACE6` resolves an operand into a target address: high 3 bits index the address-space base table at `$ACF8`, low 5 bits = offset. `$AD08` writes `$04D1` to the resolved address (the conditional write-back).
+
+**Address-space base table ($ACF8, 8 x ptr16):** `$00A0, $0300, $0320, $0080, $0480, $03E0, $0000, $0000`. Index 1 (`$0300`) = game-state / item-count region -- this is how shops read/write CARPET, R.SEED, HORN, HAMMER, RING and other consumables.
+
+**Opcode set (jump table $AC9D, 14 opcodes):**
+
+| Op | Handler | Operands | Function |
+|----|---------|----------|----------|
+| 0 | $AA35 | ptr16 list | Execute sub-block list: JMP ($0E) for each 16-bit ptr until $0000 (render/sequence) |
+| 1 | $AA3F | 1 | **Play sound**: id -> $0526, queue_sound |
+| 2 | $AA50 | 1 | **Set CHR bank/mode**: -> $38 via set_chr_mode |
+| 3 | $AA5E | 2 | **JUMP** (goto): set $CE/$CF to new script address |
+| 4 | $AA6C | 2 | **CALL** sub-block, then continue |
+| 5 | $AA78 | 2 | **STORE byte**: write value ($04D1) to resolved game-state address (deliver item / set flag) |
+| 6 | $AA91 | 3 | **Render text box**: PPU addr -> $E8/$E9, flags $EA, layout ptr from $AC74 table, trigger VRAM xfer |
+| 7 | $AADF | 1 | **Init text rendering** (text_data_init $A91A) |
+| 8 | $AAED | 2 | **Load text entry**: text_entry_lookup (mode $0A) -> set $CE/$CF to entry data (switch script to dialogue text) |
+| 9 | $AB06 | 7 | **Compare & 3-way branch**: read var at resolved addr, CMP immediate ($04D1); <,=,> each select branch target ($04D3/$04D5) + optional write-back via $AD08. **Shop gold/price/inventory checks + deduct/add** |
+| 10 | $AB5B | 2 | **Set text window type** ($0523; type 6->$0524=$33, 7->$0524=$2D) + init |
+| 11 | $AB84 | 3 | **Numeric input**: digit buffer $00-$07, reads $C2 button presses to enter a number (**shop "how many to buy" quantity selector**) |
+| 12 | $AC7C | -- | Password-screen continuation: save $CE/$CF, load $04D0/$04D1, run pwd secret check (CHOCOLA/CORONYA) |
+| 13 | $AC94 | -- | RETURN: restore $CE/$CF from stack (end of CALL) |
+
+**Shop transaction flow (composed from opcodes):** op8 loads item-menu text -> op6 renders shop window -> op11 reads purchase quantity -> op9 checks gold >= price and inventory < max (with write-back to deduct gold / increment item count at $0300+) -> op1 plays purchase jingle -> op5/op9 store the delivered item. Per-shop inventory, prices, and item IDs are encoded as operand bytes in each shop's script in the text database.
 
 **Key RAM Addresses (text system):**
 
@@ -2332,7 +2370,8 @@ Several sub-state addresses are reused across modes:
 - [x] Identify bank 0 $B000 display callers -- 9 call sites via dispatch sled $E006 (bank 0 entry 2). A parameter = sound/screen mode: $4F=chapter title, $5F=dungeon entry, $60=town entry, $65=victory, $66/$67=game clear, $0F=status. Called from bank 7 $CFA6 (battle), $D170 (chapter), $D1E4 (clear), $D26E (victory), $D4D0/$D4F9 (area entry), $D590 (generic), $D5A2 (follow-up)
 - [x] Map bank 0 $B3A0-$BAFF screen data -- 32 text-layout command streams (status/results/info screen templates) indexed by 2-byte table at $BBA1. Interpreter at $B0D9: $2F=end, $2E=row advance, $30-$49=A-Z, $00-$09=digits, $0A-$2B=PPU positioning, $80-$8F=dynamic value insert (HP/MP/item counts via $B241 jump table), $8B-$FF=raw border/icon tiles. Content: item names, EXPERIENCE POINTS, enemy army names (GIGADA/CYTRO/MEDUSA/GORGON), spell result text. Tool: dump_screendata.py
 - [x] Decode "shop tables" at file offset 0xD534/0xD544 -- NOT shops. Bank 3 $9534 is the inventory-pickup max-cap table (8 entries x 4B: addr_lo, $03, max, slot_idx) read by `inv_pickup_handler` at $94B0. Bank 3 $9524 is a 16-byte indexer for randomized reward groups. Verified: slot 0 cap=15 matches STARDUST max, slots 5/6/7 caps match $0300/$0306/$0307 documented maxes. External editor tools mislabel this as "shop inventory."
-- [ ] Find and decode bank 2 shop bytecode interpreter -- entered from bank 6 mode3_npc ($818A) when $03CC=shop_flag. Handles per-shop inventory, prices, item delivery, and the bytecode-managed item counts (CARPET, R.SEED, HORN, HAMMER, RING). Required to make shop items/prices customizable.
+- [x] Find and decode bank 2 shop bytecode interpreter -- it's a general-purpose 14-opcode **script VM** (main loop $AA1D, jump table $AC9D, script ptr $CE/$CF) driving dialogue + shops + password screen + events. Opcodes: 0=block list, 1=sound, 2=CHR, 3=jump, 4=call, 5=store-byte, 6=text box, 7=text init, 8=load text entry, 9=compare&3-way-branch (+write-back), 10=window type, 11=numeric input (buy quantity), 12=pwd check, 13=return. Operand addressing via $ACF8 base table ($0300=item/game state). **Shop scripts are bytecode in the CHR-ROM text database** (banks 22-24), not a flat table -- explains why editors couldn't find them. Item counts (CARPET/R.SEED/HORN/HAMMER/RING) manipulated by op5/op9 at $0300+. Entry via bank 6 $818A (entity $36).
+- [ ] Decode a concrete shop script from the text database -- locate a shop's text-entry ID in the $9C3A table, dump its bytecode, and read out actual item IDs/prices/max-caps for CARPET/R.SEED/HORN/HAMMER/RING (would verify guide max counts against ROM)
 
 ### RE vs GameFAQ Guide Comparison
 
