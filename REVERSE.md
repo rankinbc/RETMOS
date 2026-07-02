@@ -1706,6 +1706,21 @@ Shops 0/1 = early-chapter (20s), shop 2 = late-chapter (60s) -- the per-chapter 
 
 Decoded by `tools/dump_shops.py`. NOTE: the literal item-NAME strings are **not** a flat code-indexed table -- they are baked into each shop's text-entry screen layout. The code byte is the ownership-array index + category, not a name-string pointer.
 
+##### Shop Tables WRITE Spec (randomizer support)
+
+| Structure | CPU addr | File offset | Size | Format |
+|-----------|----------|-------------|------|--------|
+| Shop-pointer table | $94ED | 0x054FD | 16B | 8 x u16 LE (CPU addr in bank 1 window) |
+| Shop data | $94FD | 0x0550D | 64B | 8 shops x 4 slots x [code, price] |
+| Magic-shop base prices | $8AAC | 0x04ABC | 11B | binary, indexed by code lo4, x (chapter+1) |
+
+- **Slot count fixed at 4** per shop (slot index $04D8 = 0-3, record read at $8680 via `($0C),Y` with Y = slot*2). No terminator/sentinel -- exactly 8 bytes per shop.
+- **Repointing legal**: $94ED entries are plain CPU addresses read through a ZP pointer; any address in $8000-$BFFF (bank 1) works. Free space candidates in bank 1: **$9731-$98FF (463B, zero-filled, file 0x05741-0x0590F)** and $9DD3-$9DFF (45B, $FF-filled). Verify no code reaches into a chosen range before use (tools/analyze_freespace.py).
+- **Code byte legality**: must be a valid state-command -- hi4 in {$1,$3,$5} with lo4 mapping to a real counter (see Shop-Code -> Item Mapping). Other hi4 values fall into the password-command opcodes ($Cx/$Dx set arbitrary game state) -- DO NOT emit.
+- **Price byte**: 1 byte binary 0-255, loaded to $04D6 at $869A. Slot price is **ignored for magic-shop screens** (Content $75-$79): price computed as $8AAC[code&$0F] x (chapter+1) via 16-bit multiply $8B89 -> $04D6/$04D7 (16-bit result; max legit 50x6=300).
+- **Price constraints**: gold is 3-digit BCD 0-999 ($89-$8B); affordability compares BCD-converted totals ($86EA path). Keep price x max-quantity <= 999 for quantity-purchasable slots (codes $33/$34, qty from numeric-input op -> $049B); flat slots safe at any 0-255. Price 0 = legal free item. Haggle ($A33B) only perturbs a display digit during the mini-game (pseudo-RNG from gold digit + price), not the charged total.
+- **Shop id >= 4 branch**: $86A6 `CPY #$04; BCS $86CF` -- shops 4-7 take a different price post-processing path (halving at $86B7 among others). Randomizer moving slots between shops 0-3 and 4-7 should re-verify displayed prices in-game.
+
 ##### The $03C0 ownership array
 
 The shop code's low nibble indexes this array (`tools/map_item_array.py`):
@@ -1717,6 +1732,57 @@ The shop code's low nibble indexes this array (`tools/map_item_array.py`):
 - **Distinct from the EP-learned spell flags** at `$0323-$0329` (the `$0320` region: BOLTTOR1-3/FLAMOL1-3/PAMPOO, set by level-up, see Spell Progression). `$03C0` is the separately-tracked shop/quest-item ownership set.
 
 **Result**: the array is fully mapped *structurally* (11 ownership flags + parallel unlock/price arrays).
+
+##### Building Entry & Shop Selection (RESOLVED -- randomizer support)
+
+Walking into a building tile (navigation byte $FE in $B4-$B7, checked at bank 5 $ADA2) reaches `$AD34`: `LDA $B2; JSR $E03F` -- **the WorldScreen Content byte IS the bank 1 text-engine command byte, passed verbatim**. Bank 1 $8044 splits it: hi3 -> mode handler ($04E0), lo5 -> sub-index ($04E1).
+
+| Content range | hi3 mode | Bank 1 handler | Meaning |
+|---------------|----------|----------------|---------|
+| $00-$1F | 0 | $8075 | (door path unused; screen-entry code handles these) |
+| $20-$3F | 1 | $807B | First mosque etc. |
+| $40-$5F | 2 | $8154 | Universities |
+| $60-$7F | 3 | $80B3 | **Shops/services: shop id $04E1 = Content & $1F** (item shops = $60-$67 -> shop-pointer table $94ED entries 0-7; $75-$79 = magic/formation shop sub-screens; $7E mosque, $7F troopers) |
+| $80-$9F | 4 | $810D | **NPC script VM driver** (chapter-keyed via master table $8B32 -- explains why same value = different NPC per chapter) |
+| $A0-$BF | 5 | $81D1 | Hotels, casino, special locations |
+| $C0-$DF | 6 | $8154 | Time doors |
+| $E0-$FF | 7 | $8075 | Special/battle |
+
+##### Shop-Code -> Item Mapping (state-command namespace)
+
+Shop slot `[code]` bytes are **bank 1 state-command bytes** (the $8746 processor space) -- NOT the $98E8 use-table IDs, NOT menu item IDs. Mapping of every code appearing in the 8 shop tables:
+
+| Code | Type path | RAM target | Cap | Item |
+|------|-----------|------------|-----|------|
+| $33 | $3x -> $0303+3 | $0306 | 10 | BREAD |
+| $34 | $3x -> $0303+4 | $0307 | 10 | MASHROOB |
+| $10 | $1x -> $0300+0 | $0300 | 9 | KEY per TMOS_AI knowledge docs -- **CONFLICT**: door unlock decrements $0308 ($F2CB), HUD key = $0308. Either knowledge doc misnames the slot or $0300/$0308 sync exists. Needs emulator verify |
+| $11 | $1x -> $0300+1 | $0301 | 9 | (same ambiguity -- paired consumable) |
+| $51 | $5x -> $030F+1 | $0310 | 5 | R.SEED (knowledge doc shop 0x62 sells RSeed@100 = code $51@100) |
+| $52 | $5x -> $030F+2 | $0311 | 15 | CARPET (knowledge doc: Carpet@60 = code $52@60; cap 15 = guide max) |
+| $53 | $5x one-time | $0312 | init 5 | HORN (one-time, 5 charges from $87F2) |
+| $58 | $5x lo4=8 | $030D | 1 | RING (cap 1 = guide max) |
+
+The old labels rod_charges/flame_charges/stardust_charges for $030F-$0311 conflict with this mapping and the guide max alignment (R.SEED=5, CARPET=15) -- charge-slot labels flagged for rename after emulator confirmation.
+
+**$10/$11 KEY conflict RESOLVED (static):** $0300 is definitively the Bread-of-Gortrat heal-event counter -- two ROM consumers: walk-on heal event (bank 5 $8A87 `gortrat_bread_use`, DEC + $031C bit3) and +20 HP restore ($8BD2). KEY lives at $0308 only: pickup credits it (bank 5 $8BCA `ADC $0308`), locked doors consume it ($F2CB DEC). **Shop code $10 sells Gortrat-bread heal uses, NOT keys** -- the TMOS_AI knowledge doc's "Key" naming for that shop slot is wrong. Corollary: the $1x command space reaches the whole $0300-$030F page, so **unused-but-legal shop codes exist: $18 = KEY (cap 9), $19 = AMULET (cap 9), $1A = MAP** -- a randomizer can stock shops with keys via code $18. DANGER: $12 -> $0302 = armor level, $1E/$1F -> $030E/$030F = player level/charges; only emit codes whose target is a real inventory counter.
+
+##### Purchase Delivery & Max Caps (bank 1 $8746)
+
+After gold spend ($A736), item delivery routes through the **state-command processor at `$8746`** -- the same routine that applies password-decode commands (shared command-byte scheme; the "pwd_encode_state" label understates it). Dispatch on code hi-nibble:
+
+| Type | Target | Cap | On buy |
+|------|--------|-----|--------|
+| $1x | $0300 + lo4 | 9 | INC (or +qty `$049B` when X=6/7) |
+| $3x | $0303 + lo4 | 10 | INC / +qty (codes $33/$34 -> $0306 BREAD / $0307 MASHROOB) |
+| $5x lo4=8 | $030D | 1 | INC |
+| $5x lo4=2 | $0311 | 15 | INC (charge refill) |
+| $5x lo4=1 | $0310 | 5 | INC (charge refill) |
+| $5x other | $030F + lo4 | one-time | Reject if nonzero; else set initial charges from `$87F2` = [1,1,1,5,5,0,0,0] |
+
+At-cap purchase **aborts** (pops return, error message $0E via $836D) -- gold is not spent. BREAD/MASHROOB quantity buying: numeric input count at `$049B` added in one write.
+
+**Guide item-max reconciliation:** CARPET(15)/R.SEED(5)/HORN(5)/HAMMER(5)/RING(1) never appear as codes in the 8 shop tables. Their guide max values match the $5x charge-slot caps (15/5/5/5/1 pattern at $030F-$0313), suggesting those charge slots are these items' use counters and acquisition is via pickup/quest handlers (bank 3 $94B0 inv_pickup + bank 6 handlers), not shop stock. Existing labels for $030F-$0312 (ROD/FLAME/STARDUST/maxMP) may need renaming -- flagged for re-verification.
 
 **Name binding -- traced to the source, and there is no index->name table.** The menu screen is built by the state machine at bank 1 `$AA00` (dispatch on `$04C0`): state 2 (`$AA38`) sets palette via `$B707` then runs the marker loop `$AA50`; the name list is drawn by `$B3D3`, which copies null-terminated **tile/glyph layout strings** to the nametable buffer `$0163`. The string pointer table is `$B4BA` (bank 1). Decoded via `tools/decode_menu_names.py` -- entry 5 reads literally "CHAPTER" (confirms the tile decode), and entries are PPU-positioned strings mixing literal A-Z tiles with raw CHR glyph tiles (`$8B-$FF`, written verbatim -- pre-rendered name/icon graphics, not dictionary tokens). So menu/shop item names are **drawn positionally as CHR-tile layout strings**, not looked up from any code->name or index->name table. This is the definitive answer: the array indices carry ownership/price; the names live in the screen layout. `$B707` is palette setup (not name rendering).
 
@@ -1828,9 +1894,32 @@ XP thresholds are EP-1 (game displays EP, code checks EP-1). The $A886 display t
 | 24 | 17300 | 17299 | -- | (stat upgrade) | -- | 5 |
 | 25 | 20800 | 20799 | -- | (stat upgrade, max level) | -- | 5 |
 
-HP/MP values match the $8C10 stat table (30 entries). Stat upgrade entries (no flag) have reward byte hi4=$80/$C0 = HP/weapon increase.
+HP/MP values match the $8C10 stat table (30 entries).
 
-Non-spell XP rewards (flag=$00, no unlock): entries at XP 559, 639, 1799, 5199, 7199, 8799, 12549, 17299 -- these are stat/HP upgrades (reward byte hi4=$80/$C0/$E0 with no flag offset).
+**Reward byte encoding (DECODED, all 24 records verified):** bit 7 always set (level-up marker); **bit 6 ($40) = SWORD upgrade; bit 5 ($20) = ROD upgrade**; lo4 = spell progression index (0 = none). So hi4: $8=stat only, $A=ROD, $C=SWORD, $E=SWORD+ROD. Raw reward bytes per level 2-25: $81 $C2 $A3 $C0 $80 $A4 $C0 $E5 $80 $A6 $C0 $E7 $C8 $A9 $80 $EA $80 $E0 $CB $EC $C0 $ED $8A $80. Matches guide sword/rod schedule 24/24 (SWORD at 3,5,8,12,14,22; ROD at 4,7,11,15; both at 9,13,17,19,21,23).
+
+Consumer path: `$97A4` (xp_reward_handler) stores reward byte to $03ED -> `$A625`/`$A702` display+apply: AND #$40 -> message type 3 (SWORD UP), AND #$20 -> message type 4 (ROD UP) via $A7CE; AND #$0F -> spell name via $A886 display table. The weapon bits drive the level-up announcement; weapon damage itself scales from player level/equip tier ($030E/$0332) in the bank 5 damage calc ($A43E), not from a per-upgrade counter.
+
+#### Formation Pair System (Bank 3 $899C/$89C0, Bank 7 $C7xx/$CA30)
+
+RPG-battle formation commands unlock only when the right two party members are present. Two classifiers run in bank 7 against bank-3 tables:
+
+- **$05C2 (formation pair index)**: scanner ending at $C826/$C833 compares party member IDs ($050E,Y) against the **pair table at bank 3 $89C0** -- 6 records x 5 bytes: `[00, memberA_ID, memberB_ID, formation_ID(1-6), 00]`. Both members present -> $05C2 = formation ID, else 0.
+- **$05C3 (group index)**: scanner at $C837-$C876 tests battle entity types ($054D,Y) against the **range table at bank 3 $899C** -- 6 records x 6 bytes: `[r1_lo, r1_hi, r2_lo, r2_hi, group_ID(1-6), 00]`, two half-open ranges per group over type values $0D-$21.
+- **$CA30 (battle_cmd_menu)**: formation command available iff bit ($05C3-1) of `$8C50[$05C2]` or bit ($05C2-1) of `$8C56[$05C3]` is set (bitmask matrices at bank 3 $8C50/$8C56). Available -> menu code $41, else $3F.
+
+**Decoded pairs (member IDs from $89C0):**
+
+| Formation ID | Member pair | Guide pair (inferred) |
+|----|----|----|
+| 1 | 1 + 10 | CYGNUS = Coronya + Faruk |
+| 2 | 4 + 6 | LIBRA = Gun Meca + Kebabu |
+| 3 | 3 + 9 | ARIES = Epin + Supica |
+| 4 | 10 + 11 | DRAGON = Faruk + Hassan |
+| 5 | 7 + 2 | SIRIUS or KAITOS |
+| 6 | 5 + 8 | KAITOS or SIRIUS |
+
+ID anchors: 10 = Faruk (only member in two formations, matching guide CYGNUS+DRAGON overlap), so 1 = Coronya, 11 = Hassan. Formations 5/6 pair {Pukin+Mustafa} and {Gubibi+Rainy} in one order or the other -- settle by tracing member-ID assignment at recruit time (party ID array $050E writers).
 
 **Equipment/Combat Flags ($0332-$033F):**
 
@@ -1915,7 +2004,42 @@ Record format: byte 0 = item ID, byte 1 = pickup sound ($74=common, $69/$6A/$70=
 
 Items display their name via CHR tile graphics (loaded from CHR bank 23 via $9140), not through the dictionary text system. The CHR page lookup at $9163 maps item categories to tile offsets.
 
-**Key ZP State (set by warp):** $81 = current HP, $84 = screen position (4,9,14,19,24 per chapter), $87 = world/overworld flags, $89-$8B = chapter name/number, $91 = max HP.
+**Key ZP State (set by warp):** $81 = current HP, $84 = screen position (4,9,14,19,24 per chapter), $87 = world/overworld flags, $89-$8B = chapter name/number, $91 = max HP, $8C/$8D/$8E = current MP as 3 BCD digits (hundreds/tens/ones).
+
+#### Spell/Item Use Cost System (Bank 6 $8A9C / $98E8)
+
+The item/spell use handler at `$8A9C` charges HP or MP before dispatching to the per-item handler. Selected menu ID in `$33`; `item_lookup` ($950F) validates and sets Y = ID*8 into the **use-record table at $98E8** (30 records x 8 bytes):
+
+| Offset | Field |
+|--------|-------|
+| +0 | ID (self-index, $00-$1D) |
+| +1 | flags1 (doc'd earlier as item table col 4) |
+| +2 | flags2 -- **bit 4: 1 = HP cost, 0 = MP cost** |
+| +3/+4 | handler ptr (JMP ($3E) target) |
+| +5 | HP cost (binary) or MP cost hundreds (BCD) |
+| +6 | MP cost tens (BCD) |
+| +7 | MP cost ones (BCD) |
+
+**HP path** ($8AAA): binary `SEC; LDA $81; SBC $98ED,Y`. On underflow, auto-consume BREAD ($0306, +50 HP at $8AC0) and retry; if no bread, HP floors and continues (death handled elsewhere).
+
+**MP path** ($8ACC -> $8BE5): loads 3 BCD digits from record +5/+6/+7 into $00-$02, calls `$EBFF` (bcd3_sub: digit-wise subtract from **player MP at $8C-$8E**). On insufficient MP, auto-consume MASHROOB ($0307) via `$EC21` (bcd3_add, +050 = 50 MP, clamp 999) and retry. Success: result written back to $8C-$8E at $8C16.
+
+**MP costs (all ROM-verified, record index = table ID):**
+
+| ID | Spell (dict G7 order) | MP | Guide | | ID | Spell | MP | Guide |
+|----|------|----|----|--|----|------|----|----|
+| 9 | BOLTTOR1 | 4 | 4 MATCH | | 17 | RESEALO | 1 | (not in guide) |
+| 10 | BOLTTOR2 | 15 | 15 MATCH | | 18 | VELVER | 2 | (not in guide) |
+| 11 | BOLTTOR3 | 20 | 20 MATCH | | 19 | CORBOCK | 2 | 2 MATCH |
+| 12 | FLAMOL1 | 20 | 20 MATCH | | 20 | SHRINK | 2 | 2 MATCH |
+| 13 | FLAMOL2 | 25 | 25 MATCH | | 21 | CARABA | 20 | 20 MATCH |
+| 14 | FLAMOL3 | 30 | 30 MATCH | | 22 | DEFENEE | 2 | 2 MATCH |
+| 15 | PAMPOO | 2 | 2 MATCH | | 23 | RAMIPAS | 10 | 10 MATCH |
+| 16 | MARITA | 4 | 4 MATCH | | 5 | (OPRIN?) | 5 | OPRIN=5 MATCH |
+
+Other cost entries: ID 1 = **30 HP** (flags2 bit4 set, handler $8CA9); IDs 24-28 = 20 MP each (event/scripted entries). IDs 0,2-4,6-8 = zero cost.
+
+**Name-mapping caveat:** the earlier item-name table (IDs 9-14 = SWORD..LEGEND from dict G6) conflicts with the cost evidence -- records 9-14 carry exactly the BOLTTOR1-3/FLAMOL1-3 costs in dictionary group 7 order, and share handlers in triplets ($8E3D x3, $8ECE x3) like spell families, not equipment tiers. The name column for records 9-16 needs re-verification; the costs and handlers here are read directly from ROM.
 
 #### Password System (Bank 1 $86EA-$94FF)
 
@@ -2219,6 +2343,85 @@ RAM mirror: $00B0-$00BF (copied when screen loads).
 
 Navigation is graph-based (not grid): screen pointers are one-directional, enabling mazes and non-euclidean layouts.
 
+**ExitPosition ($B9) semantics -- RESOLVED (randomizer support):**
+
+Consumer: `entity_gridpos_set` (bank 4 $826B, jump-table entry 15, called via $E086 sled with A=$B9, X=0=player slot):
+
+```
+$826B: STA $0605,X        ; store packed gridpos
+       AND #$F0; ORA #$08; STA $0602,X   ; hi4 = X tile column -> xpos = col*16+8
+       LDA $0605,X; ASL x4; ORA #$08; STA $0603,X  ; lo4 = Y tile row -> ypos = row*16+8
+```
+
+Format: **hi nibble = X column (0-15), lo nibble = Y row** on the 16px MiniTile grid; engine centers +8px both axes. Legal range: X 0-15, Y 0-13 (rows 14-15 land offscreen/in HUD area).
+
+Used ONLY in these paths (bank 5 screen-entry code):
+1. **Stairway** ($AE0B-$AE1B): when Event ($BF) bit 6 set, Content ($B2) = destination screen index (STA $AB) and ExitPosition places the player on arrival.
+2. **Special-content screens** ($AEBD screen_entry_place): on entry, if Event bit6 clear AND Content & $E0 == 0 AND Content >= $01 (i.e. Content $01-$1F), player is placed at ExitPosition.
+3. **Fallback** ($AE29): if player packed gridpos ($0605) is zero, use $B9.
+
+Normal edge-walk transitions carry the player's position across (edge wrap) and never read $B9. Randomizer: byte is dead on Content=$00/[$20+] screens without stairways; must remain a valid on-screen coordinate for stairway destinations and Content $01-$1F screens.
+
+NOTE: old consumer list "bank 4 $986C/$A1A1/$A26B" was wrong -- those addresses sit inside bank 4 data tables (byte-scan false positives). Real consumers are bank 5 $AE14/$AE2E/$AED1 -> bank 4 $826B. Warp arrivals (bank 6 $8D83) also place the player at the destination screen's ExitPosition.
+
+#### Warp / Time-Door Destination Table (bank 6 $98C0) -- randomizer support
+
+Warp transitions (bank 6 $8D26 handler, CHR mode $1E) compute the destination screen as:
+
+```
+$8D5A: LDA $82; ASL x3; ADC arg   ; $82 = chapter/script group, arg = door sub-index (pushed by caller)
+$8D62: LDA $98C0,Y; STA $AB       ; table lookup -> new screen index
+$8D83: LDA $B9 -> $E086           ; place player at DESTINATION screen's ExitPosition
+```
+
+**Destination table $98C0 (file 0x198D0), 5 chapter-groups x 8 slots:**
+
+| $82 | Destinations (screen indices) |
+|-----|-------------------------------|
+| 0 | 00 17 20 7E 3D 42 00 00 |
+| 1 | 09 34 26 00 4E 00 00 00 |
+| 2 | 01 2B 2D 00 35 33 00 00 |
+| 3 | 26 28 08 00 38 60 00 00 |
+| 4 | 20 1C 06 00 00 00 00 00 |
+
+Present<->past pairing is **pure data** -- no computed mapping, no invariant beyond this table's contents. Time doors (Content $C0/$C7/$D7, bank 1 mode 6) route through dialog UI then this warp. Randomizer: moving a warp-destination screen requires patching the corresponding $98C0 byte; time-period membership (PAST screen-index lists in TMOS_AI knowledge) must stay consistent. CAVEAT: bank 4 music selector at $8335 checks ParentWorld hi4 >= $E0 for past-area music -- keep ParentWorld consistent with time period even though it doesn't drive the pairing.
+
+#### ObjectSet Spawn-Data Format (bank 4 parser $8686 -- CORRECTS TMOS_AI knowledge)
+
+ObjectSet ($B3) selects a spawn-data block (CHR data bank = $82*2+$0E, offset via ptr table), read into $0400 and parsed at bank 4 $8686:
+
+| Byte pattern | Meaning |
+|--------------|---------|
+| `$00` | terminator (confirmed) |
+| `$Fn xx` | 2-byte param record: `$05F0+n = xx+$20` (per-screen spawn config array) |
+| `tt ss pp` | 3-byte spawn: entity type `tt` -> $0600,X; state byte `ss` -> $0601,X (hi4=direction/flags, lo4=sub-state); **`pp` = PACKED GRID POS (hi4 = X column, lo4 = Y row, 16px grid)** via $826B -- NOT pixel X,Y |
+
+**CORRECTS** knowledge/structures/objectset.md: entries are [type, state, packed_pos], not [type, X-pixels, Y-pixels]; the "3-byte header" is simply the first spawn record; $Fx bytes are param records, not spawns.
+
+Spawn rules in the parser:
+- **Type $06 = ownership-gated quest/door entity**: state lo4 selects the item; spawn suppressed once owned ($86A8-$86F0 checks $03C0-array entries + progression gates $0336/$0338 + chapter $82). This is the ground-item / quest-pickup mechanism -- item randomization edits the type-6 records' state lo4.
+- **Types $10-$15 and $19+**: enemy classes subject to respawn suppression ($86DE: flag $77 / $03F7 / kill-tracking via $87B6). Types < $10 (NPCs/objects) always spawn.
+- Slot allocation via $F11C (find free slot); sprite attr via $8930.
+- Pickup credit handlers: KEY +1 -> $0308 (bank 5 $8BCA), Gortrat bread +1 cap 9 -> $0300 ($8C18, sound $1F).
+- Door entities: $F286 spawns entity type 6 into slot 2 ($0610) at (x=$60,y=$80) for door screens; Event bit5 = Oprin-door marker; locked doors consume KEY at $F2CB.
+
+#### Complete Screen-Transition Inventory (all $AB writers -- randomizer connectivity)
+
+Exhaustive: every `STA $AB` in 128KB PRG (byte-sweep `85 AB` + `8D AB 00`, zero absolute writes). These are ALL the ways the current screen can change:
+
+| # | Site | Mechanism | Destination source | Randomizer handling |
+|---|------|-----------|--------------------|---------------------|
+| 1 | bank 5 $AE4E-$AE56 | **Edge walk** | WorldScreen nav bytes $B4-$B7 | rewrite nav bytes (already done). Old screen saved to $94 |
+| 2 | bank 5 $AE0B | **Stairway** | Content byte (Event bit6 set) | rewrite Content on re-index |
+| 3 | bank 6 $8D65 | **Warp / time door** | table $98C0[$82*8+door] (file 0x198D0) | patch table |
+| 4 | bank 6 $8127 | **Return/restore** | $94 (saved screen) | automatic -- no data |
+| 5 | bank 3 $9178 | **Post-battle restore** | $94 (+ full HP restore $91->$81) | automatic |
+| 6 | bank 4 $8133 (jtable 11) | **Chapter start / respawn** | table $8136[chapter] = [63 09 01 26 20] (file 0x10146) | patch if those screens move; runs at every level-start setup ($E282 before main loop) |
+| 7 | bank 1 $8E8A | **Continue / chapter-intro start** | table $8E92[chapter (+5 if $049F flag)] = set A [40 4F 4B 38 68] / set B [1A 01 32 02 34] (file 0x04EA2) | patch; two-set toggle semantics = follow-up |
+| 8 | bank 6 $8B91 | **Debug screen browser** | d-pad (up/down = +/-16, left/right = +/-1) | ignore (debug code) |
+
+Section-connectivity model for the randomizer: a world-graph edge exists iff one of mechanisms 1-3 links the screens (nav bytes, stairway Content, $98C0 warps) **or** a start-table entry (6/7) injects the player there. Mechanisms 4/5/8 never create new links. Logical gates on edges (not new links): Oprin doors (Event $20/$22), locked doors (KEY at $F2CB), building doors (nav $FE -> UI, returns via $94). Total hardcoded screen-index data: $98C0 (40B), $8136 (5B), $8E92 (10B), plus the $90D1 CMP #$1A secret event -- supersedes the earlier "only 3 sites" note.
+
 #### Tile Rendering Pipeline (code-verified)
 
 **DataPointer ($B8) bit layout** -- verified at bank 4 $8432-$8449:
@@ -2363,7 +2566,7 @@ Several sub-state addresses are reused across modes:
 
 ## Verification Checklist
 
-- [ ] Ph3: 3+ functions traced and cross-checked against emulator trace
+- [x] Ph3: 3+ functions traced and cross-checked against emulator trace -- RESET init (MMC1 ctrl=$1F, CHR 0/$14 exactly as documented), frame-sync spin ($F24A release by NMI), NMI controller read ($E508 writes $C0 with debounced input), VRAM transfer engine ($E5F5 stream processing), title-mode input handling (Start -> chapter intro CHR switch). All verified live in tools/emu.py boot runs 2026-07-02
 - [ ] Ph4: 5+ sprites/tiles extracted and visually compared to emulator
 - [ ] Ph5: key data struct confirmed in emulator memory dump, all fields match
 - [ ] Ph6: full game session played, no major logic gaps found
@@ -2384,6 +2587,42 @@ Several sub-state addresses are reused across modes:
 ---
 
 ## Next Tasks
+
+### Randomizer Support (questions from TMOS_AI/projects/TMOS_Randomizer_V2) -- PRIORITY
+
+These unblock specific randomizer features. Write answers to REVERSE.md as usual, and where a finding contradicts TMOS_AI/knowledge/ docs, say so explicitly (e.g. the resolved bank 1 shop tables correct the old $D544 claim).
+
+- [x] Shop tables WRITE spec -- $94ED file 0x054FD (8 x ptr16), $94FD file 0x0550D (64B, fixed 4 slots x 2B, no sentinel), repointable to bank 1 free space $9731-$98FF (463B). Legal codes: hi4 in {1,3,5} only ($Cx/$Dx = password ops, dangerous). See "Shop Tables WRITE Spec"
+- [x] Shop item-code namespace -- codes are bank 1 state-command bytes ($8746 space), NOT $98E8 IDs. Full mapping table written ($33=BREAD $34=MASHROOB $51=R.SEED $52=CARPET $53=HORN $58=RING; $10/$11 KEY-conflict flagged for emulator verify). Content byte passed VERBATIM as bank 1 command at $AD34: shop id = Content & $1F
+- [x] Shop price constraints -- price 1B binary 0-255 ($04D6); gold 3-digit BCD 0-999; keep price x qty <= 999 for $33/$34; magic shops IGNORE slot price (use $8AAC[lo4] x chapter+1, 16-bit); price 0 legal; haggle only perturbs display digit; shops 4-7 take different price path ($86CF, halving at $86B7)
+- [x] Content byte relocation safety -- table below (see also "Building Entry & Shop Selection"). Key insight: Content is passed VERBATIM as the bank 1 UI command, so building handlers are keyed to (chapter group $82, Content) -- never to screen index:
+
+  | Content | Meaning | Verdict | Coupling |
+  |---------|---------|---------|----------|
+  | $00 | empty | SAFE | none |
+  | $01-$1F | wizard battle on enter | SAFE | param = Content & $1F; uses ExitPosition |
+  | $21-$2A | boss (demon) screens | NEEDS-PATCH | phase pairs ($21/$22 etc.) must stay together; CHR boss setup $95E8 ($38=$1B); chapter progression values |
+  | $40-$5F | universities | SAFE | chapter-keyed only ($82) |
+  | $60-$67 | item shops 0-7 | SAFE | shop id = Content & $1F -> $94ED table (screen-independent) |
+  | $75-$79 | magic/formation shops | SAFE | prices chapter-scaled ($8AAC x chapter+1), screen-independent |
+  | $7E/$7F | mosque/troopers | SAFE | chapter-keyed |
+  | $80-$9F | NPC scripts | SAFE within chapter | script = $8B32[$82] + lo5; scripts set progress flags via $BC35 -- preserve reachability ORDER (wiseman before dependent event screens) |
+  | $A0-$BF | hotels/casino/special | SAFE | none found |
+  | $C0-$DF | time doors | NEEDS-PATCH | destination in $98C0 table, NOT derived from door screen; patch table when moving destination screens |
+  | $E0-$FE | special/battle | SAFE | none found |
+  | any + Event bit6 | stairway | DO-NOT-MOVE blind | Content = destination screen index -- rewrite when re-indexing screens |
+
+- [x] Hardcoded screen-index references -- SWEEP COMPLETE (revised): (1) **bank 6 $98C0** warp/time-door destinations (40B, file 0x198D0); (2) **bank 4 $8136** chapter start/respawn screens [63 09 01 26 20] (file 0x10146); (3) **bank 1 $8E92** continue/intro screen sets A=[40 4F 4B 38 68] B=[1A 01 32 02 34] (file 0x04EA2); (4) **bank 6 $90D1** `CMP #$1A` secret event (screen $1A + gridpos $68/$69 + magic_level 6, immediate at file 0x190E2); (5) warp data $BB1F $0084 progression values. Zero immediate `STA $AB` writes; all 8 `STA $AB` sites classified in "Complete Screen-Transition Inventory"
+- [x] Trace bank 1 $8E92 two-set toggle semantics -- chapter-INTRO display screens shown in sequence: $8E55 intro flow toggles $049F ($8E77 EOR); new value 1 -> set A [40 4F 4B 38 68] (first intro screen), 0 -> set B [1A 01 32 02 34] (second). Display-only during $19=8 intro mode, not player injection; still must remain renderable screens
+- [x] Boss phase-2 transition (Content $21-$2A) -- NO engine mutation (zero INC $B2 in ROM); hi3=1 -> bank 1 mode-1 handler $807B = generic dialog/script loop (same as mosque $20). "Phase 1/2" = two separate screens with two content codes, pure data convention. Bosses behave like scripted NPC content for relocation purposes
+- [x] North Cape jump (Event $47) -- IS a stairway: bit6 set -> same $AE0B path (BIT $BF/BVS), Content = landing screen index. Low bits = dialog variant only. No separate mechanism
+- [x] ObjectSet spawn-data format -- parser bank 4 $8686: $00=end, $Fx xx=param->$05F0, else [type, state, PACKED grid pos hi4=col lo4=row]. CORRECTS knowledge doc's [type,Xpx,Ypx] reading. Type 6 = ownership-gated quest/door entity (state lo4 = item selector). Types $10-$15/$19+ respawn-suppressed. See "ObjectSet Spawn-Data Format"
+- [x] Resolve $10/$11 shop-code vs KEY -- STATIC RESOLUTION: $0300 = Gortrat bread (consumers $8A87 walk-on heal, $8BD2 +20HP), KEY = $0308 only (credit $8BCA, consume $F2CB). Shop code $18 = KEY (legal, unused in stock shops); $19=AMULET, $1A=MAP. Knowledge doc "Key" slot naming wrong
+- [x] Type-6 state lo4 -> item mapping -- REFRAMED: type-6 entities are DOOR/BLOCKER sprites (sub-state table $81C1: handlers $8854/$88AB = gated movement/blocking, not item-gives). Quest items are delivered by content-$8x SCRIPTS (chapter-keyed -- matches knowledge NPC tables listing "Rostam Sword"/"Legend Sword" as content codes) and enemy drops via bank 3 reward groups ($9524) + inv_pickup ($94B0). Ground-item randomization = move content codes (see safety table), keep matching ObjectSet type-6 sprite
+- [x] $05F0 spawn param array -- per-screen config written by ObjectSet $Fx records (+$20). Consumers: bank 6 $921D quest-item appearance/state (rod-gate $0337 + $03C4 ownership, fallback Y+$10 when owned), bank 3 $BB30/$BB46 battle placement override reads $05F5, bank 2 $A91F text init. Params are screen-local scratch, not navigation -- safe under screen shuffling as long as ObjectSet moves with the screen
+- [x] Progress flag map $03E0-$03E4 -- setters: (1) bank 2 $BC35 (script CALL target): flag index = $BC56[$82] = [1,3,4,2,0] by script group, special case $82=3+$04E1=6 -> flag 3; sets $03E0,X=1 and $0540=X|$80; (2) chapter warp table $BB1F per-chapter init. Gaters: (1) 5 VM script IFs (IF[$03E1]@$B878, IF[$03E2]@$BAF1, IF[$03E3]@$B95E+$BB04, IF[$03E4]@$BA5B); (2) world-item handlers 24-28 via $99D8 offsets $E0-$E4 -- item_lookup requires flag nonzero, item_consume DECs it, then handler runs event ($9659 battle ch4 / $966A full-restore / $96AE screen event ch3+ / $96B9 ceremony / $9725 magic effect). NO other engine readers (no indexed $03E0,X loads outside $BC4C). Flags = per-chapter story milestones keyed to script group, not screen index -- SAFE for screen shuffling as long as the wiseman-script screens stay reachable before their dependent event screens
+- [x] Present<->past screen pairing -- RESOLVED: pure data lookup, destination = $98C0[$82*8 + door_sub_index] -> $AB (bank 6 $8D5A-$8D65); player placed at destination screen's own ExitPosition ($8D83). No computed pairing, no ParentWorld derivation. Invariants: only $98C0 table contents + PAST screen-index membership (TMOS_AI knowledge lists). CAVEAT: bank 4 $8335 selects past-area music when ParentWorld hi4 >= $E0 -- keep ParentWorld consistent with time period. See "Warp / Time-Door Destination Table"
+- [x] exit_position byte semantics -- RESOLVED: hi4=X col, lo4=Y row (16px grid, +8 center), consumer bank 4 $826B via $E086 sled. Used only for stairways (Event bit6, Content=dest screen), Content $01-$1F entry, gridpos-0 fallback. Edge walks never read it. Old $986C/$A1A1/$A26B consumer claims were data false positives. See WorldScreen section
 
 ### RE Investigation
 
@@ -2438,6 +2677,26 @@ Several sub-state addresses are reused across modes:
 - [x] Find and decode bank 2 shop bytecode interpreter -- it's a general-purpose 14-opcode **script VM** (main loop $AA1D, jump table $AC9D, script ptr $CE/$CF) driving dialogue + shops + password screen + events. Opcodes: 0=block list, 1=sound, 2=CHR, 3=jump, 4=call, 5=store-byte, 6=text box, 7=text init, 8=load text entry, 9=compare&3-way-branch (+write-back), 10=window type, 11=numeric input (buy quantity), 12=pwd check, 13=return. Operand addressing via $ACF8 base table ($0300=item/game state). **Shop scripts are bytecode in the CHR-ROM text database** (banks 22-24), not a flat table -- explains why editors couldn't find them. Item counts (CARPET/R.SEED/HORN/HAMMER/RING) manipulated by op5/op9 at $0300+. Entry via bank 6 $818A (entity $36).
 - [x] Decode VM script storage + driver -- scripts are byte-streams in bank 2 PRG $B800-$BFFF; bank 1 $810D driver selects via $82 (master table $8B32 -> sub-tables $9046/$9058/$9066/$9078/$9088) + sub-index $04E1; 37 scripts total. Built dis_script.py + scan_scripts.py. FINDING: all 37 are story/cutscene event scripts (IF on progress flags $03E0-$03E4), NO NUMINPUT and NO item-count STOREs -- the shop BUY transaction is NOT in this set.
 - [x] Find the actual shop buy-loop -- RESOLVED: shops are flat tables in **bank 1**, NOT bytecode. Shop-pointer table $94ED (8 shops x ptr16, indexed by $04E1) -> shop data $94FD (4 slots x [code, price]). Pipeline: $8680 read -> $A5A0 price*qty -> $A33B haggle (BCD) -> $8A71 magic-shop chapter scaling -> $A736 animated gold spend ($EBDD chokepoint). Verified shop 0 = codes 33/34/10/53 @ 20/20/40/40. See "Shop Inventory & Pricing (bank 1)" section. Corrects both the $D544 and bank-2 claims.
+- [x] Trace spell MP costs -- FOUND LOOKUP TABLE (earlier "inline SBC" claim wrong): use-record table at bank 6 $98E8 (30 x 8B), cost at +5..+7 (BCD MP) or +5 (binary HP, flags2 bit4). Deduct path $8A9C -> $8BE5 -> $EBFF (BCD sub from player MP at ZP $8C-$8E). All 13 guide costs verified + RESEALO=1, VELVER=2 recovered. See "Spell/Item Use Cost System"
+- [ ] Re-verify item-name mapping for use-table records 9-16 -- doc names them SWORD..LEGEND/HAMMER/R-SEED (dict G6/G5) but costs+handler-triplet pattern match BOLTTOR1-3/FLAMOL1-3/PAMPOO/MARITA exactly; trace menu-name rendering to settle
+- [x] Decode weapon upgrade encoding in level-up reward table -- reward byte bit6=$40=SWORD, bit5=$20=ROD, bit7=marker, lo4=spell index. All 24 records match guide schedule. Display via $A702 (msg types 3/4); damage scales from level/equip tier, not upgrade counter
+- [x] Decode formation pair assignments -- pair table bank 3 $89C0 (6 x 5B: memberA, memberB, formationID). Pairs (1,10)(4,6)(3,9)(10,11)(7,2)(5,8); 10=Faruk, 1=Coronya, 11=Hassan anchored via CYGNUS/DRAGON overlap. Availability via $05C2/$05C3 classifiers + $8C50/$8C56 bit matrices. See "Formation Pair System"
+- [ ] Enumerate party member ID -> name mapping (IDs 2-9) -- trace $050E party ID array writers at recruit time; settles SIRIUS vs KAITOS pair order
+- [x] Verify shop-item caps -- shop BUY delivery is bank 1 $8746 (mislabeled pwd_encode_state; same state-command processor serves password decode AND purchases). Type $1x -> $0300+lo4 cap 9; $3x -> $0303+lo4 cap 10 (BREAD/MASHROOB add qty $049B); $5x -> charge/one-time items: lo4=8 -> $030D cap 1, X=2 -> $0311 cap 15, X=1 -> $0310 cap 5, else one-time (reject if owned) w/ initial charges from $87F2 = [1,1,1,5,5,0,0,0]. At-cap purchase aborts w/ error $0E via $836D. CARPET/R.SEED/HORN/HAMMER/RING never appear in the 8 shop tables -- acquired via pickup/quest handlers, guide "shop" claim wrong or refers to charge refills. Guide maxes 15/5/5/5/1 align with $5x caps 15/5/5/5/1 pattern -- suggests $030F-$0313 charge slots ARE these items (label re-check: $0311 "STARDUST" may be CARPET uses)
+- [x] Confirm $030A = MAP flag -- CONFIRMED: bank 4 $8C1E gates map-overlay rendering (RTS if $030A=0, else draws 24x32 overlay via $8C92); incremented on pickup at bank 5 $A65B (ADC $0701,X). $030A = MAP owned count
+- [ ] Decode WorldScreen record format fully (CHR bank 21 pointer table + banks 26-28 level/entity data) -- 739 records known to exist, $B8 DataPointer bits 0-5 -> $38 CHR index known, but full record layout (tilemap ptr, entity list, exits, palette) not documented as struct
+- [ ] Build render_screen.py -- composite one in-game screen to gfx/screen_NNN.png from tilemap data (CHR banks 29-31) + tile table ($9AFB) + MiniTile table ($95FB) + palettes ($93F3/$951F). Validates the whole tile pipeline decode (Ph4)
+
+### Emulator (Ph5.5) & Verification
+
+- [x] Build tools/emu.py scriptable 6502/NES emulator core -- DONE: full official-opcode CPU, MMC1 (serial writes, PRG mode 3, CHR 4KB pairs), PPU stub ($2002 vblank, $2006/$2007 with real one-read delay buffer, OAM DMA), controller with press scheduling. CLI: --dump-regs, --boot-test N, --trace N, --break ADDR, --frames N, --watch ADDR, --poke, --buttons, --press frame:mask[:dur]. BOOT-VERIFIED: reaches title, responds to Start (title -> chapter intro, CHR 0/$14 -> 7/$14 matching documented chr mode $19). Emulation gotchas encoded: NMI must not interrupt MMC1 serial sequences; $2007 reads below $3F00 are buffer-delayed (game's CHR data streams depend on it)
+- [x] Verify shop purchase path dynamically -- DONE via emu.py --call unit mode (jump into bank 1 $8746 with prepared RAM). All 8 cases pass: $10 -> $0300+1; **$18 -> $0308 KEY+1 (shop-sellable keys CONFIRMED)**; $33 qty=2 -> $0306+2; $10 at cap 9 -> abort no-INC; $53 fresh -> $0312=5 (init write at $87ED); $53 owned -> rejected (0 writes); $52 -> $0311 INC at $87D0; $58 -> $030D=1. Static shop-code map now fully emulator-confirmed
+- [ ] Extend emu.py: drive into gameplay (name entry -> overworld) to verify screen loads and observe charge-slot item names on HUD ($0310-$0312 identity question)
+- [ ] Add PPU render to tools/emu (--dump-screen) -- background from nametables + CHR, sprites from OAM
+- [ ] Ph3 verify: trace RESET->title flow in emu, cross-check against documented RESET flow ($E19B), NMI handler ($E3C9), main loop ($E290)
+- [ ] Ph4 verify: extract 5+ sprites (player, Coronya, enemy types) via bank 4 sprite tables, compare to emu --dump-screen
+- [ ] Ph5 verify: dump entity slots ($0600 stride 8 + $0700 extended) from emu memory during gameplay, confirm all documented fields
+- [ ] Ph6 verify: scripted playthrough segment (title -> name entry -> overworld -> shop -> battle), confirm no logic gaps
 
 ### RE vs GameFAQ Guide Comparison
 
@@ -2596,4 +2855,11 @@ CARPET, R.SEED, HORN, HAMMER, RING are bought from the **bank 1 shop tables** ($
 
 ### Web Port Fixes
 
+- [ ] Bootstrap web/ -- index.html (game shell: canvas, input, game loop skeleton) + catalog.html (asset browser: CHR tiles, palettes, decoded screens, dictionary text)
+- [ ] Port tile rendering pipeline to JS (MiniTile -> Tile -> screen composition) using decoded bank 4 tables
+- [ ] Ph7 verify: pixel-compare web-rendered screen against emulator screenshot (compare_frames.py)
+
 ### Documentation
+
+- [x] Update docs/architecture_exe.md -- added Shop System, Script VM, item/spell use-record format + MP costs, formation pair system, weapon-upgrade reward encoding, MP storage ($8C-$8E), charge-slot caps, MAP flag. Synced 2026-07-02
+- [ ] Create docs/architecture_web.md once web/ exists -- JS module graph, EXE->web mapping table, game loop flow

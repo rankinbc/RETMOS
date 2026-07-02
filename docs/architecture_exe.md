@@ -134,6 +134,8 @@ Main Loop ($90ED): enemy turn ($9658) -> round exec ($B826) -> result check -> r
 
 **Stat progression**: 30-level table at $8C10 (HP 20-255, MP 10-255). Player starts at index $84+5.
 
+**Formation pairs**: pair table at bank 3 $89C0 (6 x 5B: `[00, memberA, memberB, formationID, 00]`) -- pairs (1,10)(4,6)(3,9)(10,11)(7,2)(5,8); member 10 = Faruk, 1 = Coronya, 11 = Hassan. Classifiers set $05C2 (pair index, exact-ID scan) and $05C3 (group index, type-range scan vs $899C); command menu ($CA30) enables formation iff bit set in matrices $8C50/$8C56.
+
 ---
 
 ## Text/Dialogue System
@@ -170,7 +172,13 @@ TileSection (32B from CHR, 8x4 tile IDs, 2 sections = full screen)
 
 **Screen load** (bank 4 entry 12, $813B): read WorldScreen -> load TileSections from CHR -> build nametable -> load palette -> spawn entities from ObjectSet.
 
-**Navigation**: screen adjacency links in WorldScreen record bytes 8-11 ($FF=wall). Chapter boundaries at $D386. $84 = linear level progression.
+**Navigation**: screen adjacency links in WorldScreen record bytes 4-7 ($FF=wall, $FE=building door). Chapter boundaries at $D386. $84 = linear level progression.
+
+**Building entry**: nav byte $FE -> bank 5 $AD34 passes the Content byte verbatim as the bank 1 UI command (hi3=mode, lo5=sub-index): $6x=shops (id = Content & $1F), $8x-$9x=chapter-keyed NPC scripts, $Ax=hotels, $Cx=time doors.
+
+**ExitPosition** ($B9): hi4=X column, lo4=Y row (16px grid, +8 center) via bank 4 $826B. Used for stairways (Event bit6: Content=destination screen), Content $01-$1F entry, and warp arrivals.
+
+**Warps/time doors**: destination = table at bank 6 $98C0 (5 chapter-groups x 8 screen indices), looked up at $8D5A as $98C0[$82*8+door]; present<->past pairing is pure data. Only 3 hardcoded screen references exist in the entire ROM: $98C0 table, bank 6 $90D1 (CMP #$1A secret event), chapter-start values in warp data $BB1F.
 
 ---
 
@@ -184,6 +192,7 @@ TileSection (32B from CHR, 8x4 tile IDs, 2 sections = full screen)
 | $0307 | MASHROOB | 10 | Auto-restore 50 MP on depletion ($8BFB) |
 | $0308 | KEY | 9 | Auto-use on locked doors ($F2CB) |
 | $0309 | AMULET | 9 | Auto-reverse transformation ($87F4) |
+| $030A | MAP | 1 | Gates map-overlay render (bank 4 $8C1E) |
 
 ### Equipment & Progression
 
@@ -193,7 +202,9 @@ TileSection (32B from CHR, 8x4 tile IDs, 2 sections = full screen)
 | $030E | Player level | 2-6 | Entity spawn scaling |
 | $0322 | Magic level | 2-6 | Spell power scaling |
 | $0332 | Equipped sword | dynamic | Written by sword pickup ($8E3D) |
-| $030F-$0311 | ROD/FLAME/STARDUST | charges | Weapon ammo (max 5/5/15) |
+| $030F-$0313 | Charge slots | caps 1/5/15/5/5 | Shop $5x purchase targets; one-time buys init from $87F2 = [1,1,1,5,5]. Caps match guide RING/HORN-HAMMER-R.SEED/CARPET maxes -- labels (ROD/FLAME/STARDUST) pending re-verification |
+
+**Player MP**: 3 BCD digits at ZP $8C/$8D/$8E (hundreds/tens/ones); generic BCD sub/add at $EBFF/$EC21 (bank 7). Current HP binary at ZP $81, max HP $91.
 
 ### Spells (13 XP-unlocked at $97EC)
 
@@ -212,6 +223,10 @@ TileSection (32B from CHR, 8x4 tile IDs, 2 sections = full screen)
 | $032F | CARABA (20 MP, replaces SHRINK) | 20 | 10800 |
 | $032A | MARITA (4 MP, heal 50 HP) | 21 | 11300 |
 | $0328 | FLAMOL3 (30 MP) | 23 | 14550 |
+
+All MP costs ROM-verified from the use-record table (bank 6 $98E8, bytes +5..+7, BCD). Two additional castables not XP-gated: RESEALO (1 MP), VELVER (2 MP). Cost deduct path: $8A9C -> $8BE5 -> $EBFF against MP at $8C-$8E, with MASHROOB auto-refill (+50).
+
+**Level-up reward byte** ($97EC records, byte 2): bit7 = marker, **bit6 = SWORD upgrade, bit5 = ROD upgrade**, lo4 = spell progression index (0 = stat-only). Drives level-up announcement via $A702 (msg types 3/4); damage itself scales from level/equip tier in bank 5 $A43E.
 
 ### Combat Gates ($0336-$033F)
 
@@ -246,9 +261,31 @@ Progressive unlock flags (set by chapter warp only): $0336=sword, $0337=rod, $03
 
 ---
 
-## Item Data Table (bank 6 $98E8, 30 entries x 8B)
+## Shop System (bank 1)
 
-Items 1-6: ROD/FLAME/STARDUST/CIMARON/CRYSTAL/ISFA (Group 4 weapons). Items 7-8: KEY/AMULET (quest keys). Items 9-14: SWORD/SIMITAR/DRAGOON/KASHIM/ROSTAM/LEGEND (Group 6 swords, equip via $8E3D). Items 15-22: HAMMER/R-SEED/CARPET/HORN/OPRIN/RING/blank/MAP (Group 5 quest items). Items 23-29: Event triggers (mode change, ceremony, magic effects).
+Flat tables, not bytecode. Shop-pointer table `$94ED` (8 shops x ptr16, indexed by shop id $04E1) -> shop data `$94FD+` (4 slots x `[code, price]`). Read at $8680 -> $04D5/$04D6.
+
+**Pricing pipeline**: $A5A0 (price x qty) -> $A33B (haggle, BCD) -> $8A71 (magic-shop chapter scaling via $8AAC base table x $8B89) -> $A736 (animated gold spend, $EBDD chokepoint).
+
+**Delivery + caps** (state-command processor $8746, shared with password decode): code hi4 `$1x` -> $0300+lo4 (cap 9), `$3x` -> $0303+lo4 (cap 10; $33/$34 = BREAD/MASHROOB, +qty $049B), `$5x` -> charge/one-time slots at $030F+ (caps 1/5/15; one-time buys reject if owned, init charges from $87F2). At-cap purchase aborts with error $0E -- gold not spent.
+
+**Ownership**: $03C0 array (11 entries stride 2), set by item_acquire ($8AB7), checked by $8A9A so spells/key items can't be rebought.
+
+---
+
+## Script VM (bank 2 $AA1D)
+
+General-purpose 14-opcode bytecode interpreter driving dialogue, cutscenes, and the password screen (NOT shops). Main loop $AA1D, opcode jump table $AC9D, script pointer $CE/$CF. Key ops: 5=store-byte, 6=text box, 9=compare + 3-way branch with write-back, 11=numeric input, 12=password check. Operand addressing via $ACF8 base table.
+
+37 story/cutscene scripts live in bank 2 PRG $B800-$BFFF, selected by the bank 1 driver $810D (master table $8B32, sub-index $04E1); all gate on progress flags $03E0-$03E4. Tools: dis_script.py, scan_scripts.py.
+
+---
+
+## Item/Spell Use-Record Table (bank 6 $98E8, 30 entries x 8B)
+
+Record: `[ID, flags1, flags2, handler_lo, handler_hi, cost_h, cost_t, cost_o]`. flags2 bit4: 1 = HP cost (binary byte at +5, BREAD auto-refill), 0 = MP cost (3 BCD digits, MASHROOB auto-refill). Use path: $8A9C charges cost then `JMP (handler)`.
+
+Record groups: 1-6 weapons/actives (ROD/FLAME/STARDUST/CIMARON/CRYSTAL/ISFA), 7-8 quest keys (KEY/AMULET), 9-16 named SWORD tiers + quest items in the old item-name mapping **but carrying BOLTTOR1-3/FLAMOL1-3/PAMPOO/MARITA costs in dict-7 order with handler triplets ($8E3D x3, $8ECE x3) -- name mapping for 9-16 flagged for re-verification**, 17-23 spells (RESEALO/VELVER/CORBOCK/SHRINK/CARABA/DEFENEE/RAMIPAS), 24-29 event triggers (20 MP each).
 
 ---
 

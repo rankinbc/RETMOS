@@ -503,3 +503,59 @@ bank,addr,name,comment
 1,B3D3,menu_text_render,Render menu name row: A*2 -> $B4BA ptr -> copy null-term tile string to $0163 buffer
 1,B4BA,menu_text_ptrs,Menu name/layout string pointer table (PPU-positioned CHR-tile strings; e.g. "CHAPTER")
 1,B707,menu_palette_setup,Menu palette setup (writes $04A0 palette buffer via $B74C/$B7B0/$B83A tables)
+6,98E8,spell_item_use_table,30 x 8B use records: ID flags1 flags2(bit4=HP-cost) handler_ptr cost(BCD MP h/t/o or binary HP at +5)
+6,8A9C,spell_item_use_handler,Use item/spell $33: cost check+deduct then JMP (handler from $98EB/$98EC)
+6,8BE5,mp_cost_deduct,Deduct BCD MP cost (record +5..+7) from $8C-$8E with MASHROOB auto-refill +50
+7,EBFF,bcd3_sub,3-digit BCD subtract $00-$02 from $8C-$8E result in $00-$02 carry clear=insufficient
+7,EC21,bcd3_add,3-digit BCD add $00-$02 to $8C-$8E clamp at 999
+*,008C,player_mp_h,Player MP hundreds digit (BCD)
+*,008D,player_mp_t,Player MP tens digit (BCD)
+*,008E,player_mp_o,Player MP ones digit (BCD)
+6,97EC,xp_reward_table,24 x 4B: threshold16 reward_byte(bit6=SWORD bit5=ROD lo4=spell idx) flag_offset
+*,03ED,levelup_reward_byte,Pending level-up reward byte (0=none; consumed by $A625 display/apply)
+6,A702,levelup_weapon_display,Level-up weapon message: AND #$40 SWORD(type 3) AND #$20 ROD(type 4) via $A7CE
+3,89C0,formation_pair_table,6 x 5B: 00 memberA memberB formationID 00 (1=Coronya+Faruk CYGNUS etc)
+3,899C,formation_group_ranges,6 x 6B: two half-open type ranges + groupID for $05C3 classifier
+3,8C50,formation_avail_matrix_a,Bitmask by $05C2: bit($05C3-1) set = formation cmd available
+3,8C56,formation_avail_matrix_b,Bitmask by $05C3: bit($05C2-1) set = formation cmd available
+*,05C2,formation_pair_idx,Formation pair index 1-6 (0=none) from party IDs vs $89C0
+*,05C3,formation_group_idx,Formation group index 1-6 from battle types vs $899C ranges
+1,8746,shop_pwd_state_cmd,State-command processor: $1x->$0300+lo4 cap9 $3x->$0303+lo4 cap10 $5x->charge/one-time (serves password decode AND shop buy delivery)
+1,87F2,shop_initial_charges,Initial charge values for one-time $5x purchases: 1 1 1 5 5 0 0 0 (indexed $030F+X)
+4,8C1E,map_overlay_gate,Map overlay render gate: RTS if $030A=0 else draw via $8C92
+*,030A,map_owned,MAP item owned count: gates bank 4 $8C1E map overlay render
+*,049B,shop_buy_qty,Purchase quantity (numeric input) added to BREAD/MASHROOB count on buy
+4,826B,entity_gridpos_set,Packed coord hi4=Xcol lo4=Yrow (16px grid) -> entity X/Y +8px center (jtable entry 15)
+5,AE0B,stairway_enter,Stairway transition: Event bit6 -> Content=$B2 becomes dest screen $AB + place player at $B9
+5,AEBD,screen_entry_place,Screen entry: place player at ExitPosition $B9 if Content $01-$1F and no stairway
+1,8044,text_engine,Text/UI engine main: cmd hi3=mode->$04E0 lo5=subidx->$04E1 dispatch via $E97D
+5,AD34,building_enter,Building door enter (nav byte $FE): Content $B2 passed verbatim as bank 1 command
+1,8680,shop_inv_read,Read shop/cmd 2B record via ($0C): code->$04D5 price->$04D6 (slot $04D8*2)
+1,A5A0,shop_price_total,Shop total = price x qty (qty table $A3CB) BCD accumulate -> $04D2
+1,8B89,multiply_16bit_b1,16-bit multiply $0A:$0B = A x Y (magic shop price x chapter+1)
+6,99D8,item_addr_lookup,Item ID -> $0300-page offset consumed on use (IDs 24-28 -> $03E0-$03E4 flags)
+6,98C0,warp_dest_table,Warp/time-door destinations: 5 chapter-groups x 8 screen indices ($82*8+arg -> $AB)
+6,8D5A,warp_dest_lookup,Warp destination compute: $98C0[$82*8+arg] -> $AB then place at dest ExitPosition
+2,BC35,script_set_progress_flag,Script CALL target: $03E0+$BC56[$82]=1 and $0540=idx|$80 (special $82=3+$04E1=6 -> flag 3)
+2,BC56,script_flag_idx_table,Script group -> progress flag index: 01 03 04 02 00
+6,90CF,secret_screen1A_event,Secret event: screen $1A + gridpos $68/$69 + magic_level 6 -> INC $88
+4,812E,chapter_start_screen_set,Set $AB = $8136[chapter] at level-start setup (jtable entry 11 via $E282)
+4,8136,chapter_start_screens,Chapter start/respawn screen indices: 63 09 01 26 20
+1,8E8A,continue_start_screen_set,Set $AB = $8E92[chapter (+5 if $049F)] on continue/chapter intro
+1,8E92,continue_screen_tables,Two 5-entry chapter screen sets: A=40 4F 4B 38 68 B=1A 01 32 02 34
+6,8127,screen_save_restore,Mode 11: save $AB->$94 else restore $94->$AB (building/UI return)
+6,8B91,debug_screen_browser,Debug: d-pad free screen nav (up/down +/-16 left/right +/-1)
+3,9178,battle_exit_restore,Post-battle: full heal $91->$81 and restore screen $94->$AB
+5,AE4E,edge_walk_transition,Edge walk: save $AB->$94 swap in new screen from nav byte
+1,8E55,chapter_intro_flow,Chapter intro sequence: text dispatch + two display screens via $8E92 sets (toggle $049F)
+1,807B,mode1_script_dialog,Mode 1 handler: generic dialog/script loop (mosque $20, bosses $21-$2A)
+4,8686,objectset_parser,ObjectSet spawn parser: $00=end $Fx=param->$05F0 else [type state packed_pos] records
+4,8738,entity_data_read,Read ObjectSet spawn block from CHR data bank into $0400
+5,8BCA,key_pickup_credit,KEY pickup: A(1 or 20) += $0308
+5,8C18,gortrat_pickup_credit,Gortrat bread pickup: INC $0300 cap 9 sound $1F
+5,8A87,gortrat_bread_use,Walk-on Gortrat heal event: DEC $0300 set $031C bit3
+7,F286,door_entity_spawn,Spawn door entity type 6 slot 2 at ($60 $80) if $0611 empty
+*,05F0,spawn_param_array,Per-screen spawn config from ObjectSet $Fx records (value+$20)
+5,81C1,type6_substate_table,Type-6 door/blocker sub-state handlers (13 entries: 1=$8854 3=$88AB 11=$8916 12=$8937)
+5,8854,type6_blocker_move,Type-6 blocker movement: gated $0336+$03C2 (ch2: $0338+$03C6) else idle
+6,921D,quest_item_appearance,Quest-item entity appearance/state from $05F0 param (rod gate $0337 + $03C4; owned -> Y+$10)
