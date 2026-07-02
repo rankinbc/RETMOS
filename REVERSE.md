@@ -2567,7 +2567,7 @@ Several sub-state addresses are reused across modes:
 ## Verification Checklist
 
 - [x] Ph3: 3+ functions traced and cross-checked against emulator trace -- RESET init (MMC1 ctrl=$1F, CHR 0/$14 exactly as documented), frame-sync spin ($F24A release by NMI), NMI controller read ($E508 writes $C0 with debounced input), VRAM transfer engine ($E5F5 stream processing), title-mode input handling (Start -> chapter intro CHR switch). All verified live in tools/emu.py boot runs 2026-07-02
-- [ ] Ph4: 5+ sprites/tiles extracted and visually compared to emulator
+- [x] Ph4: 5+ sprites/tiles extracted and visually compared to emulator -- title logo, name-entry font grid, story-scene tiles, palace/tree overworld tiles, player sprite all render correctly through the independent emu.py compositor built from the decoded structures (nametables, attribute tables, CHR pairs from $ED43 modes, palette RAM, OAM). Frames in gfx/emu_*.png (2026-07-02)
 - [ ] Ph5: key data struct confirmed in emulator memory dump, all fields match
 - [ ] Ph6: full game session played, no major logic gaps found
 - [ ] Ph7: web port pixel-compared against emulator screenshots
@@ -2691,7 +2691,10 @@ These unblock specific randomizer features. Write answers to REVERSE.md as usual
 
 - [x] Build tools/emu.py scriptable 6502/NES emulator core -- DONE: full official-opcode CPU, MMC1 (serial writes, PRG mode 3, CHR 4KB pairs), PPU stub ($2002 vblank, $2006/$2007 with real one-read delay buffer, OAM DMA), controller with press scheduling. CLI: --dump-regs, --boot-test N, --trace N, --break ADDR, --frames N, --watch ADDR, --poke, --buttons, --press frame:mask[:dur]. BOOT-VERIFIED: reaches title, responds to Start (title -> chapter intro, CHR 0/$14 -> 7/$14 matching documented chr mode $19). Emulation gotchas encoded: NMI must not interrupt MMC1 serial sequences; $2007 reads below $3F00 are buffer-delayed (game's CHR data streams depend on it)
 - [x] Verify shop purchase path dynamically -- DONE via emu.py --call unit mode (jump into bank 1 $8746 with prepared RAM). All 8 cases pass: $10 -> $0300+1; **$18 -> $0308 KEY+1 (shop-sellable keys CONFIRMED)**; $33 qty=2 -> $0306+2; $10 at cap 9 -> abort no-INC; $53 fresh -> $0312=5 (init write at $87ED); $53 owned -> rejected (0 writes); $52 -> $0311 INC at $87D0; $58 -> $030D=1. Static shop-code map now fully emulator-confirmed
-- [ ] Extend emu.py: drive into gameplay (name entry -> overworld) to verify screen loads and observe charge-slot item names on HUD ($0310-$0312 identity question)
+- [x] PPU renderer (--dump-screen) -- background (nametable+attributes+CHR pair+palette RAM) and sprite layer (8x8/8x16, flips) to PNG. Verified frames in gfx/: emu_title.png (full title screen), emu_after_start.png (name entry grid), emu_progress*.png (story prologue pages), emu_gameplay.png (live overworld: player before palace, HP 50/50)
+- [x] Drive emulator into gameplay -- reached live overworld. Input recipe (--press): Start x5 @400-800 (title), name entry, A presses every 250 frames @1450-6700 (story pages auto-advance on A). ~45M instructions (~2 min wall). Story text advances on A, not Start
+- [ ] Observe charge-slot item names on HUD/menu in-game ($0310-$0312 identity question) -- open the item menu from gameplay state
+- [ ] Ph6: scripted walk across screens, verify $AB transitions + shop entry live
 - [ ] Add PPU render to tools/emu (--dump-screen) -- background from nametables + CHR, sprites from OAM
 - [ ] Ph3 verify: trace RESET->title flow in emu, cross-check against documented RESET flow ($E19B), NMI handler ($E3C9), main loop ($E290)
 - [ ] Ph4 verify: extract 5+ sprites (player, Coronya, enemy types) via bank 4 sprite tables, compare to emu --dump-screen

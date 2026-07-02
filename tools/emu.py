@@ -53,6 +53,7 @@ class NES:
         self.mmc1 = MMC1()
         self.ppu_status_reads = 0
         self.ppu_addr = 0; self.ppu_addr_latch = 0; self.ppu_read_buf = 0
+        self.ppu_ctrl = 0; self.ppu_mask = 0
         self.vram = bytearray(0x4000)
         self.oam = bytearray(256)
         self.buttons = 0; self.ctrl_shift = 0; self.ctrl_strobe = 0
@@ -129,6 +130,8 @@ class NES:
             self.ram[addr & 0x7FF] = val; return
         if addr < 0x4000:
             reg = 0x2000 + (addr & 7)
+            if reg == 0x2000: self.ppu_ctrl = val
+            elif reg == 0x2001: self.ppu_mask = val
             if reg == 0x2006:
                 if self.ppu_addr_latch == 0:
                     self.ppu_addr = (val << 8) | (self.ppu_addr & 0xFF); self.ppu_addr_latch = 1
@@ -339,6 +342,73 @@ class NES:
                     starved = 0
         return 'max'
 
+# NES master palette (Nestopia NTSC)
+NES_PAL = [
+    (0x66,0x66,0x66),(0x00,0x2A,0x88),(0x14,0x12,0xA7),(0x3B,0x00,0xA4),(0x5C,0x00,0x7E),(0x6E,0x00,0x40),(0x6C,0x06,0x00),(0x56,0x1D,0x00),
+    (0x33,0x35,0x00),(0x0B,0x48,0x00),(0x00,0x52,0x00),(0x00,0x4F,0x08),(0x00,0x40,0x4D),(0x00,0x00,0x00),(0x00,0x00,0x00),(0x00,0x00,0x00),
+    (0xAD,0xAD,0xAD),(0x15,0x5F,0xD9),(0x42,0x40,0xFF),(0x75,0x27,0xFE),(0xA0,0x1A,0xCC),(0xB7,0x1E,0x7B),(0xB5,0x31,0x20),(0x99,0x4E,0x00),
+    (0x6B,0x6D,0x00),(0x38,0x87,0x00),(0x0C,0x93,0x00),(0x00,0x8F,0x32),(0x00,0x7C,0x8D),(0x00,0x00,0x00),(0x00,0x00,0x00),(0x00,0x00,0x00),
+    (0xFF,0xFE,0xFF),(0x64,0xB0,0xFF),(0x92,0x90,0xFF),(0xC6,0x76,0xFF),(0xF3,0x6A,0xFF),(0xFE,0x6E,0xCC),(0xFE,0x81,0x70),(0xEA,0x9E,0x22),
+    (0xBC,0xBE,0x00),(0x88,0xD8,0x00),(0x5C,0xE4,0x30),(0x45,0xE0,0x82),(0x48,0xCD,0xDE),(0x4F,0x4F,0x4F),(0x00,0x00,0x00),(0x00,0x00,0x00),
+    (0xFF,0xFE,0xFF),(0xC0,0xDF,0xFF),(0xD3,0xD2,0xFF),(0xE8,0xC8,0xFF),(0xFB,0xC2,0xFF),(0xFE,0xC4,0xEA),(0xFE,0xCC,0xC5),(0xF7,0xD8,0xA5),
+    (0xE4,0xE5,0x94),(0xCF,0xEF,0x96),(0xBD,0xF4,0xAB),(0xB3,0xF3,0xCC),(0xB5,0xEB,0xF2),(0xB8,0xB8,0xB8),(0x00,0x00,0x00),(0x00,0x00,0x00),
+]
+
+def render_screen(n, path):
+    """Composite BG (nametable 0) + sprites to a PNG using current PPU state."""
+    from PIL import Image
+    img = Image.new('RGB', (256, 240))
+    px = img.load()
+    def chr_byte(pattern_addr):
+        bank = n.mmc1.chr0 if pattern_addr < 0x1000 else n.mmc1.chr1
+        return n.chr[(bank*0x1000 + (pattern_addr & 0xFFF)) % len(n.chr)]
+    def pal_color(idx):
+        e = n.vram[0x3F00 + idx] & 0x3F
+        return NES_PAL[e]
+    bg_base = 0x1000 if n.ppu_ctrl & 0x10 else 0x0000
+    # background
+    for row in range(30):
+        for col in range(32):
+            tile = n.vram[0x2000 + row*32 + col]
+            at = n.vram[0x23C0 + (row//4)*8 + (col//4)]
+            shift = ((row % 4)//2)*4 + ((col % 4)//2)*2
+            palgrp = (at >> shift) & 3
+            base = bg_base + tile*16
+            for y in range(8):
+                p0 = chr_byte(base + y); p1 = chr_byte(base + y + 8)
+                for x in range(8):
+                    b = 7 - x
+                    c = ((p0 >> b) & 1) | (((p1 >> b) & 1) << 1)
+                    idx = 0 if c == 0 else palgrp*4 + c
+                    px[col*8+x, row*8+y] = pal_color(idx)
+    # sprites (front-to-back: draw 63..0 so sprite 0 wins overlaps)
+    tall = bool(n.ppu_ctrl & 0x20)
+    sp_base = 0x1000 if n.ppu_ctrl & 0x08 else 0x0000
+    for i in range(63, -1, -1):
+        sy, tile, attr, sx = n.oam[i*4:i*4+4]
+        if sy >= 0xEF: continue
+        sy += 1
+        hflip, vflip = attr & 0x40, attr & 0x80
+        palgrp = attr & 3
+        height = 16 if tall else 8
+        for y in range(height):
+            yy = (height-1-y) if vflip else y
+            if tall:
+                t = (tile & 0xFE) + (1 if yy >= 8 else 0)
+                base = (0x1000 if tile & 1 else 0x0000) + t*16 + (yy & 7)
+            else:
+                base = sp_base + tile*16 + yy
+            p0 = chr_byte(base); p1 = chr_byte(base + 8)
+            for x in range(8):
+                b = x if hflip else 7 - x
+                c = ((p0 >> b) & 1) | (((p1 >> b) & 1) << 1)
+                if c == 0: continue
+                X, Y = sx + x, sy + y
+                if X < 256 and Y < 240:
+                    px[X, Y] = pal_color(0x10 + palgrp*4 + c)
+    img.save(path)
+    print(f"screen -> {path} (ctrl={n.ppu_ctrl:02X} mask={n.ppu_mask:02X} chr={n.mmc1.chr0}/{n.mmc1.chr1})")
+
 def load_labels():
     labels = {}
     path = os.path.join(os.path.dirname(__file__), '..', 'labels.csv')
@@ -432,6 +502,8 @@ def main():
         print(f"watch ${n.watch:03X} writes: {len(n.watch_log)}")
         for ic, pc, v in n.watch_log[:20]:
             print(f"  #{ic} pc=${pc:04X} val={v:02X}")
+    if '--dump-screen' in args:
+        render_screen(n, getflag('--dump-screen'))
 
 if __name__ == '__main__':
     main()
