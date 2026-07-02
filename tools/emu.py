@@ -70,6 +70,7 @@ class NES:
         self.nmi_pending = False
         self.history = [None]*32
         self.press_schedule = []  # (frame, mask, duration)
+        self.poke_schedule = []   # (frame, addr, val)
 
     # ---------- memory ----------
     def prg_bank_base(self, cpu_addr):
@@ -314,6 +315,9 @@ class NES:
             for fr, mask, dur in self.press_schedule:
                 if fr <= self.frame < fr + dur:
                     self.buttons |= mask
+        for fr, addr, val in self.poke_schedule:
+            if fr == self.frame:
+                self.ram[addr & 0x7FF] = val
 
     def run(self, max_instr=200000, break_at=None, trace=0, nmi_every=6000, labels=None):
         """NMI fires only while the CPU sits in a frame-sync spin loop, mirroring real
@@ -449,6 +453,12 @@ def main():
             n.ram[int(addr, 16) & 0x7FF] = int(val, 16)
     if '--watch' in args: n.watch = int(getflag('--watch'), 16) & 0x7FF
     if '--buttons' in args: n.buttons = int(getflag('--buttons'), 16)
+    if '--pokeat' in args:
+        # --pokeat 7000:030F=03,7000:0310=07
+        for spec in getflag('--pokeat').split(','):
+            fr_s, assign = spec.split(':', 1)
+            addr, val = assign.split('=')
+            n.poke_schedule.append((int(fr_s), int(addr, 16), int(val, 16)))
     if '--press' in args:
         # --press 300:08,360:08 or 300:08:10 (frame:mask[:duration])
         for spec in getflag('--press').split(','):

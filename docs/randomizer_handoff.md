@@ -130,6 +130,30 @@ A scriptable emulator now exists in RETMOS (`tools/emu.py`). Unit-mode (`--call 
 
 The emulator also boot-verifies: RESET/MMC1 init, frame sync, controller, title -> chapter intro on Start. Available for any further dynamic checks the randomizer needs.
 
+## 10. ROUND 2 Answers
+
+**ParentWorld (byte 0) is cosmetic + time-period only.** Full reader sweep: every $B0 read is a hi4/lo4 mask -- music variant, palette tint, past-area flag (hi4 >= $E0), RING-teleport lookup ($AAE7), ambient SFX. **None index enemy spawns or encounters** (those come from ObjectSet byte 3 + bank 3 tables). "Biome salad" is mechanically SAFE. Two constraints: keep hi4 >= $E0 consistent with actual PAST screens; if a screen is a RING-teleport target, keep its lo4 in the $AAE7 table.
+
+**Screen indices are CHAPTER-RELATIVE.** read_worldscreen (bank4 $82A1): base set from chapter $82, record = base + $AB*16. The $98C0 warp table and $8136 respawn table hold chapter-relative indices. Matches your reachability model.
+
+**Boss screens ($21-$2A): mode-1 scripts, chapter-locked.** No code range-check; each value runs a chapter-keyed dialog/battle script ($8B32[$82]) with chapter-keyed CHR ($95E8). Rule: pin each boss value to its native chapter; may relocate within the chapter; keep phase-1 screen reachable before phase-2 in progression order. Cross-chapter move loads the wrong script/CHR.
+
+**Stairways: one-way legal, no return needed.** Arrival (bank5 $AE0B) loads the DESTINATION's WorldScreen record and drops the player at the destination's ExitPosition. Destination needs no Event bit6. Sets only $AB + player position -- no progress state. Repoint stairway Content freely; just ensure the destination's ExitPosition is an on-screen tile.
+
+**Wizard battles ($01-$1F): param = Content & $1F** selects a bank 3 encounter (index groups $8019, formations $8460, stats $8341). Chapter-scoped; shuffle within-chapter among $01-$1F, verifying the target encounter exists for that chapter.
+
+**Shops 4-7 price path**: $86A6 `CPY #$04` splits shops 0-3 (direct) vs 4-7. The 4-7 branch only affects quantity-buy display math for BREAD/MASHROOB ($33/$34); flat item slots read [code,price] identically. Moving flat slots across the boundary is safe; re-verify qty-buyable slots if moved to shops 4-7.
+
+## 11. Connectivity Smoke-Test Tool
+
+`tools/emu_walk.py` (loads any .nes) reports per-chapter screen reachability using static edges (nav bytes + stairways + warp table). Because time-door destinations resolve via a dynamic in-engine lookup the static model can't fully follow, vanilla itself has expected "orphans" (past screens). So use **baseline-diff mode**:
+
+```
+python tools/emu_walk.py shuffled.nes --baseline TMOS_ORIGINAL.nes
+```
+
+Reports only NEW orphans introduced by the shuffle (regressions) -- PASS if none. Verified: self-diff is clean; a deliberately isolated screen is correctly flagged. Drop this in CI to catch shuffles that strand screens.
+
 ## Open items (emulator verification recommended)
 
 1. ~~$10/$11 vs KEY~~ RESOLVED + emulator-confirmed: $0300 = Gortrat bread, KEY = $0308, code $18 = shop-sellable KEY.

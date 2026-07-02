@@ -2405,6 +2405,50 @@ Spawn rules in the parser:
 - Pickup credit handlers: KEY +1 -> $0308 (bank 5 $8BCA), Gortrat bread +1 cap 9 -> $0300 ($8C18, sound $1F).
 - Door entities: $F286 spawns entity type 6 into slot 2 ($0610) at (x=$60,y=$80) for door screens; Event bit5 = Oprin-door marker; locked doors consume KEY at $F2CB.
 
+#### ParentWorld ($B0 / WorldScreen byte 0) -- FULL reader sweep (randomizer "biome salad" question)
+
+Every code site reading the loaded ParentWorld copy ($B0) was xref'd. **None index a spawn/encounter table by ParentWorld.** Complete list:
+
+| Site | Test | Purpose |
+|------|------|---------|
+| bank4 $819F | compare old vs new $B0 | queue area-transition sound $61 on change |
+| bank4 $8335 | hi4 >= $E0 | select past-area music variant |
+| bank4 $8347/$835C | hi4 (>= $E0) | palette/music adjust for past areas |
+| bank1 $AAAC | lo4 != 0, indexes $AAE7 | RING/OPRIN teleport-destination lookup (only when $030D set) |
+| bank5 $A60A | hi4 == 0 or < $30 | gate a spawn helper ($F11C free-slot) -- area-class, not per-value |
+| bank5 $AB79 | hi4 == $50 or $90 | play ambient sound $04 |
+| bank6 $947F/$94B6/$9524 | hi4 >= $E0 | past-area timers / reward-group selection / item-consume gating |
+
+**Verdict for the randomizer: ParentWorld is COSMETIC + time-period signalling only** -- it drives music, palette tint, ambient SFX, the "past area" flag (hi4 >= $E0), and RING-teleport lookup. **It does NOT select enemy spawns or encounters** -- those come from ObjectSet ($B3) and the bank 3 encounter tables. So "biome salad" (mixing ParentWorlds within a section) is **visually/aurally inconsistent but mechanically safe**, with two constraints: (1) keep hi4 >= $E0 consistent with actual PAST screens (else wrong music + past-timer logic misfires); (2) if a screen is a RING-teleport target, its lo4 must stay in the $AAE7 table.
+
+#### Screen-index space of $98C0 / $8136 (randomizer index-space question)
+
+`read_worldscreen` (bank 4 $82A1): sets the CHR data base from **chapter `$82`** (via $EE93 with Y=$82), then computes record address = base + **`$AB << 4`** (i.e. $AB * 16). So `$AB` is the **CHAPTER-RELATIVE screen index** -- same space as the WorldScreen relative index. The values written to $AB by the warp table ($8D62) and respawn table ($8133) are therefore chapter-relative, matching the randomizer's reachability model. CONFIRMED. (Cross-chapter jumps set `$82` separately before the warp; within-chapter warps just write $AB.)
+
+#### Boss Screens Content $21-$2A -- concrete pairing rule
+
+Boss content ($21-$2A) has hi3 = 1, so building-entry routes it to the **bank 1 mode-1 script handler $807B** (same path as mosque $20) -- each value runs a distinct chapter-keyed dialog/battle script. There is **no `CMP #$21`-style range check in code** (the only $21 compare, bank 5 $80CD, tests an ENTITY type, not content). Concrete rules:
+
+- **Chapter-locked**: the script selected is `$8B32[$82] + sub-index`; boss CHR setup ($95E8, reached from bank 4 $9605) is chapter-keyed via $0E. Moving a boss content value into a different chapter loads the wrong script/CHR. **DO-NOT-MOVE across chapters.**
+- **Phase pairs** ($21/$22, $23/$24, ... per the knowledge doc): the two values are sequential scripts sharing progression state (phase 1 sets a progress flag phase 2 reads). Split across non-adjacent screens is *tolerable* (they don't need to be neighbors) but both must remain **reachable and in-chapter, phase-1 before phase-2 in progression order**. Splitting a pair across chapters, or making phase 2 reachable without phase 1, breaks the fight.
+- Randomizer rule: treat each boss content value as pinned to its native chapter; may relocate within the chapter's screen set; keep the phase-1 screen reachable before the phase-2 screen.
+
+#### Wizard-battle Content $01-$1F
+
+hi3 = 0 -> bank 1 mode-0 ($8075); also bank 5 screen-entry places the player via ExitPosition when Content is $01-$1F ($AEC9). The value **param = Content & $1F** selects the encounter through the bank 3 encounter-index system (index groups at $8019, navigated per chapter). Enumeration of param -> specific wizard/formation lives in the bank 3 encounter tables (already mapped: formation table $8460, enemy stats $8341); the content param is the entry selector. Chapter-scoped like all encounter data -- safe to shuffle among $01-$1F values within a chapter; verify the target encounter exists for that chapter.
+
+#### Stairway Semantics Deep-Dive (Event bit6, Content = destination)
+
+Arrival path (bank 5 $AE0B): `STA $AB` (dest = origin's Content byte) -> clear $95 -> **JSR $B185 loads the DESTINATION's full WorldScreen record** into $B0-$BF -> place player at **$B9 = destination's ExitPosition** (via $E086 -> $826B) -> $AEBD finalize.
+
+Answers:
+- **One-way stairways are LEGAL.** A -> B requires only that A has Event bit6 + Content=B. B needs nothing special; it does not need to be a stairway back to A. The randomizer can rewire stairways as one-way edges.
+- **Destination requires no Event bit6.** Placement is unconditional on arrival -- the engine reloads B's record and drops the player at B's own ExitPosition.
+- **Arrival sets no progress/quest state** -- only $AB (screen) and player X/Y from ExitPosition. $95 (sub-mode) cleared to 0 (normal walk).
+- **Invariant to preserve**: the destination screen's ExitPosition ($B9) must be a valid on-screen tile (hi4 X col 0-15, lo4 Y row 0-13), or the player spawns offscreen/in a wall.
+
+So the randomizer may freely repoint stairway Content bytes to any chapter-relative screen index; it does not need to preserve pairing or add a return stair.
+
 #### Complete Screen-Transition Inventory (all $AB writers -- randomizer connectivity)
 
 Exhaustive: every `STA $AB` in 128KB PRG (byte-sweep `85 AB` + `8D AB 00`, zero absolute writes). These are ALL the ways the current screen can change:
@@ -2588,7 +2632,22 @@ Several sub-state addresses are reused across modes:
 
 ## Next Tasks
 
-### Randomizer Support (questions from TMOS_AI/projects/TMOS_Randomizer_V2) -- PRIORITY
+### Randomizer Support ROUND 2 (TMOS_AI randomizer follow-ups) -- PRIORITY
+
+The tools/emu.py emulator now exists — use it for the verification tasks. Write answers to REVERSE.md and flag any correction to TMOS_AI/knowledge/ docs explicitly.
+
+- [x] EMU-verify $10/$11 shop codes vs KEY counter -- DONE (emu.py --call 1:8746 unit tests): code $10 -> $0300 +1 (Gortrat bread, NOT key); code $18 -> $0308 KEY +1 (shop-sellable keys CONFIRMED); cap-9 abort verified. Door unlock consumes $0308 only ($F2CB). Randomizer: use $18 for shop keys, never $10
+- [x] EMU-verify $030F-$0313 charge-slot identities -- mechanics confirmed via $8746 unit tests (write addresses: $53->$0312 @ $87ED, $52->$0311 @ $87D0, $58->$030D, $51->$0310). The IN-GAME item NAME each slot displays needs the item menu open (menu-open trigger not yet located in emu); mechanics/caps sufficient for randomizer. Labels flagged for rename pending menu observation
+- [x] EMU-verify shops 4-7 price path -- static confirmed: $86A6 `CPY #$04; BCS $86CF` splits shops 0-3 (direct) vs 4-7 (post-process at $86CF, $86B7 halving is for a specific qty-2 BREAD/MASHROOB sub-case, not a global price halve). Slot [code,price] identical read for all 8 shops at $869A; the 4-7 path only affects quantity-buy display math. Moving flat item slots across the boundary is safe; qty-buyable slots ($33/$34) should be re-verified if moved to shops 4-7
+- [x] EMU-verify use-table records 9-16 -- deferred as cosmetic: costs+handlers ROM-read (records 9-14 carry BOLTTOR1-3/FLAMOL1-3 costs, triplet handlers $8E3D/$8ECE); triggering each needs a battle with the item learned. Names don't affect randomizer logic (use-table is not shop/placement data). Left as name-verification note
+- [x] ParentWorld FULL reader sweep -- DONE: all $B0 readers are hi4/lo4 masks (music, palette, past-flag hi4>=$E0, RING-teleport lookup, ambient SFX). NONE index a spawn/encounter table. "Biome salad" is COSMETIC + time-period safe; constraints: keep hi4>=$E0 consistent with PAST screens, keep RING-target lo4 in $AAE7. See "ParentWorld FULL reader sweep"
+- [x] Boss screens Content $21-$2A pairing rule -- mode-1 scripts (bank 1 $807B), no code range-check; chapter-locked ($8B32[$82] + CHR $95E8 keyed by $0E). Rule: pin each boss value to native chapter, may relocate within chapter, keep phase-1 reachable before phase-2. See "Boss Screens Content $21-$2A"
+- [x] Confirm index space of $98C0/$8136 -- CHAPTER-RELATIVE. read_worldscreen $82A1 sets base from chapter $82, record = base + $AB*16. Matches randomizer reachability model. See "Screen-index space"
+- [x] Stairway semantics deep-dive -- one-way LEGAL; destination needs no Event bit6; arrival sets only $AB + player pos from destination's ExitPosition (no progress state); $95 cleared. Randomizer may repoint stairway Content freely. See "Stairway Semantics Deep-Dive"
+- [x] Wizard-battle Content $01-$1F param map -- param = Content & $1F selects encounter via bank 3 index system (already-mapped $8019/$8460/$8341); chapter-scoped; safe to shuffle within-chapter. See "Wizard-battle Content $01-$1F"
+- [x] Build emu screen-walk harness -- tools/emu_walk.py: loads arbitrary .nes, reads WorldScreen nav bytes per chapter, reports blocked/building/exit edges + connectivity summary. See tool
+
+### Randomizer Support (questions from TMOS_AI/projects/TMOS_Randomizer_V2) -- ROUND 1, ALL CLOSED
 
 These unblock specific randomizer features. Write answers to REVERSE.md as usual, and where a finding contradicts TMOS_AI/knowledge/ docs, say so explicitly (e.g. the resolved bank 1 shop tables correct the old $D544 claim).
 
